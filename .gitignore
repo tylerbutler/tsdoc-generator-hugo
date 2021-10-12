@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+
+# Logs
+*.log
+
+# Other
+*.todo
+*.old
+*.temp
+*.tmp
+
+bin/
