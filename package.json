@@ -2,24 +2,59 @@
   "name": "tsdoc-generator-hugo",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Tyler Butler",
+    "email": "tyler@tylerbutler.com",
+    "url": "https://tylerbutler.com/"
+  },
+  "main": "dist/cli.js",
+  "bin": {
+    "tsdocgen": "dist/cli.js"
+  },
+  "type": "module",
   "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf -r dist/** bin/**",
+    "lint": "eslint --format stylish .",
+    "release": "echo \"NYI\"",
+    "run": "node --require=suppress-experimental --loader ts-node/esm ./src/cli.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Tyler Butler",
-  "license": "MIT",
+  "dependencies": {
+    "@microsoft/api-documenter": "^7.13.63",
+    "@microsoft/api-extractor-model": "^7.13.13",
+    "@microsoft/tsdoc": "^0.13.2",
+    "@rushstack/node-core-library": "^3.42.3",
+    "chalk": "^4.1.2",
+    "mdast-builder": "~1.1.1",
+    "mdast-util-from-markdown": "^1.0.4",
+    "mdast-util-to-markdown": "~1.2.3",
+    "rehype-stringify": "~9.0.2",
+    "remark": "~14.0.1",
+    "remark-parse": "~10.0.0",
+    "remark-rehype": "~10.0.0",
+    "remark-stringify": "~10.0.0",
+    "resolve": "~1.17.0",
+    "unified": "~10.1.0",
+    "unified-stream": "~2.0.0",
+    "unist-util-visit": "~4.1.0"
+  },
   "devDependencies": {
-    "@types/node": "^14.17.3",
-    "@types/yargs": "^17.0.2",
-    "@typescript-eslint/eslint-plugin": "^4.30.0",
-    "@typescript-eslint/parser": "^4.30.0",
+    "@types/mdast": "^3.0.0",
+    "@types/node": "^16.10.8",
+    "@types/unist": "~2.0.6",
+    "@types/yargs": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
     "copyfiles": "2.4.1",
-    "eslint": "^7.32.0",
-    "eslint-plugin-import": "^2.24.2",
+    "eslint": "^8.0.0",
+    "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "eslint-plugin-unicorn": "^35.0.0",
+    "eslint-plugin-unicorn": "^37.0.1",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.4.2"
+    "suppress-experimental": "^1.0.0",
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4"
   }
 }
