@@ -29,6 +29,7 @@
     "chalk": "^4.1.2",
     "mdast-builder": "~1.1.1",
     "mdast-util-from-markdown": "^1.0.4",
+    "mdast-util-frontmatter": "^1.0.0",
     "mdast-util-gfm": "^2.0.0",
     "mdast-util-to-markdown": "~1.2.3",
     "rehype-stringify": "~9.0.2",

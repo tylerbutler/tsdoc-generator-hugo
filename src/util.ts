@@ -2,6 +2,7 @@
 import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiModel, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
 import * as tsdoc from "@microsoft/tsdoc";
 import chalk from "chalk";
+import { string } from "yargs";
 
 // TODO: This is a temporary workaround.  The long term plan is for API Extractor's DocCommentEnhancer
 // to apply all @inheritDoc tags before the .api.json file is written.
@@ -85,26 +86,8 @@ export function getConciseSignature(apiItem: ApiItem): string {
 export const getSafeFilenameForName = (name: string): string =>
     name.replace(_badFilenameCharsRegExp, '_').toLowerCase();
 
-// I don't know why using the types from api-extractor-model doesn't work.
-export const enum ApiItemKind {
-    CallSignature = "CallSignature",
-    Class = "Class",
-    Constructor = "Constructor",
-    ConstructSignature = "ConstructSignature",
-    EntryPoint = "EntryPoint",
-    Enum = "Enum",
-    EnumMember = "EnumMember",
-    Function = "Function",
-    IndexSignature = "IndexSignature",
-    Interface = "Interface",
-    Method = "Method",
-    MethodSignature = "MethodSignature",
-    Model = "Model",
-    Namespace = "Namespace",
-    Package = "Package",
-    Property = "Property",
-    PropertySignature = "PropertySignature",
-    TypeAlias = "TypeAlias",
-    Variable = "Variable",
-    None = "None"
-}
+import { URL } from "url"; // in Browser, the URL in native accessible on window
+
+export const __filename = new URL("", import.meta.url).pathname;
+// Will contain trailing slash
+export const __dirname = new URL(".", import.meta.url).pathname;

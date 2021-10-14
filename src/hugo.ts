@@ -1,7 +1,7 @@
 // import * as ae from "@microsoft/api-extractor-model";
 // const { ApiItem, ApiItemKind, ApiModel, ApiPackage, ApiParameterListMixin } = ae;
 
-import { ApiItemKind, ApiReleaseTagMixin, ReleaseTag } from "@microsoft/api-extractor-model";
+import { ApiDeclaredItem, ApiDocumentedItem, ApiItemKind, ApiReleaseTagMixin, ReleaseTag } from "@microsoft/api-extractor-model";
 import { ApiItem, ApiModel, ApiPackage, ApiParameterListMixin } from "@microsoft/api-extractor-model";
 import path from "path";
 import { fromMarkdown } from "mdast-util-from-markdown";
@@ -9,12 +9,12 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 // import { MarkdownDocumenterFeatureContext } from "../plugin/MarkdownDocumenterFeature";
 // import { MarkdownDocumenter } from "@microsoft/api-documenter";
 import type { Node, Parent } from "unist";
-import type { Heading, Code, Link, Root, Content, } from "mdast";
+import type { Heading, Code, Link, Root, Content, Strong, } from "mdast";
 import * as md from "mdast-builder";
 import { toMarkdown } from "mdast-util-to-markdown";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { DocSection, StringBuilder, TSDocConfiguration } from "@microsoft/tsdoc";
+import { DocComment, DocNode, DocNodeKind, DocSection, StringBuilder, TSDocConfiguration } from "@microsoft/tsdoc";
 import { remark } from "remark";
 import remarkGfm from "remark-gfm";
 import { gfmToMarkdown } from "mdast-util-gfm";
@@ -23,6 +23,9 @@ import { FileSystem as fs, PackageName } from "@rushstack/node-core-library";
 import { getSafeFilenameForName } from "./util.js";
 import chalk from "chalk";
 import { Paragraph } from "mdast-util-from-markdown/lib";
+import { DocumenterConfig } from "./DocumenterConfig.js";
+import { frontmatterToMarkdown } from "mdast-util-frontmatter";
+import { callout } from "./nodes.js";
 
 export class FrontMatter {
     public title: string = "";
@@ -48,6 +51,7 @@ export interface HugoDocumenterOptions {
     apiModel?: ApiModel;
     inputPath: string;
     outputPath: string;
+    documenterConfig: DocumenterConfig;
 }
 
 const mdRoot = md.root([
@@ -103,6 +107,7 @@ export class HugoDocumenter {
     private readonly _apiModel: ApiModel;
     private readonly _inputPath: string;
     private readonly _outputPath: string;
+    private readonly _documenterConfig: DocumenterConfig;
     private _frontmatter?: FrontMatter;
     private _currentApiItemPage?: ApiItem;
 
@@ -110,6 +115,7 @@ export class HugoDocumenter {
         this._apiModel = options.apiModel ? options.apiModel : new ApiModel();
         this._inputPath = options.inputPath;
         this._outputPath = options.outputPath;
+        this._documenterConfig = options.documenterConfig;
     }
 
     private _loadApiFiles(inputPath: string, model?: ApiModel): ApiModel {
@@ -149,33 +155,13 @@ export class HugoDocumenter {
         const breadcrumb = this.getBreadcrumb(apiItem);
         const heading = this.getHeading(apiItem);
         const betaWarning = this.getBetaWarning(apiItem);
-
-
-        // if (apiItem instanceof ApiDocumentedItem) {
-        //     const tsdocComment: DocComment | undefined = apiItem.tsdocComment;
-
-        //     if (tsdocComment) {
-        //         if (tsdocComment.deprecatedBlock) {
-        //             if (this._documenterConfig && this._documenterConfig.logLevel === 'verbose') {
-        //                 for (const node of tsdocComment.deprecatedBlock.content.nodes) {
-        //                     console.log(`NODE: ${node.kind}, CHILDREN: [${node.getChildNodes().map(v => v.kind)}]`);
-        //                 }
-        //             }
-        //             output.appendNode(
-        //                 new DocNoteBox(
-        //                     {
-        //                         configuration: this._tsdocConfiguration,
-        //                         type: 'warning',
-        //                         title: 'Deprecated'
-        //                     }, [...tsdocComment.deprecatedBlock.content.nodes]
-        //                 )
-        //             );
-        //         }
-
-        //         this._appendSection(output, tsdocComment.summarySection);
-        //     }
-        // }
-
+        let summarySection: Paragraph | undefined;
+        if (apiItem instanceof ApiDocumentedItem) {
+            summarySection = this.getSummarySection(apiItem);
+        }
+        if (apiItem instanceof ApiDeclaredItem) {
+            this.getCodeExcerpt(apiItem);
+        }
 
         const tree = md.root([
             breadcrumb,
@@ -187,12 +173,14 @@ export class HugoDocumenter {
         if (betaWarning) {
             tree.children.push(betaWarning);
         }
-
+        if (summarySection) {
+            tree.children.push(summarySection);
+        }
         // const log = processor.stringify();
 
         // console.log(toMarkdown(mdRoot));
         console.log(tree);
-        console.log(toMarkdown(tree, { extensions: [gfmToMarkdown()] }));
+        console.log(toMarkdown(tree, { extensions: [gfmToMarkdown(), frontmatterToMarkdown(["toml", "yaml"])] }));
 
     }
 
@@ -274,6 +262,41 @@ export class HugoDocumenter {
         }
         return undefined;
     }
+
+    protected getSummarySection(apiItem: ApiDocumentedItem): Paragraph | undefined {
+        const tsdocComment: DocComment | undefined = apiItem.tsdocComment;
+
+        if (tsdocComment) {
+            if (tsdocComment.deprecatedBlock) {
+                if (true && this._documenterConfig && this._documenterConfig.logLevel === 'verbose') {
+                    for (const node of tsdocComment.deprecatedBlock.content.nodes) {
+                        console.log(`NODE: ${node.kind}, CHILDREN: [${node.getChildNodes().map(v => v.kind)}]`);
+                    }
+                }
+
+                // for(const node of tsdocComment.deprecatedBlock.content.nodes) {
+                //     node.kind === DocNodeKind.
+                // }
+                const output = callout("warning", "Deprecated", [
+                    // TODO: finish this
+                ]);
+                return output as Paragraph;
+            }
+
+            // this._appendSection(output, tsdocComment.summarySection);
+        }
+    }
+
+    protected getCodeExcerpt(apiItem: ApiDeclaredItem) {
+        const nodes: Content[] = [];
+        if (apiItem.excerpt.text.length > 0) {
+            nodes.push(md.paragraph(md.strong([md.text("Signature:")])) as Paragraph);
+            nodes.push(md.code("typescript", apiItem.getExcerptWithModifiers()) as Code)
+        }
+
+        this._writeHeritageTypes(output, apiItem);
+    }
+
     protected _getFilenameForApiItem(apiItem: ApiItem): string {
         if (apiItem.kind === ApiItemKind.Model) {
             return 'index.md';

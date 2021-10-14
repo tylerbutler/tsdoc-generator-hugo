@@ -1,0 +1,1060 @@
+{
+  "metadata": {
+    "toolPackage": "@microsoft/api-extractor",
+    "toolVersion": "7.16.1",
+    "schemaVersion": 1004,
+    "oldestForwardsCompatibleVersion": 1001,
+    "tsdocConfig": {
+      "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+      "noStandardTags": true,
+      "tagDefinitions": [
+        {
+          "tagName": "@alpha",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@beta",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@defaultValue",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@decorator",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@deprecated",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@eventProperty",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@example",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@experimental",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@inheritDoc",
+          "syntaxKind": "inline"
+        },
+        {
+          "tagName": "@internal",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@label",
+          "syntaxKind": "inline"
+        },
+        {
+          "tagName": "@link",
+          "syntaxKind": "inline",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@override",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@packageDocumentation",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@param",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@privateRemarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@public",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@readonly",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@remarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@returns",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@sealed",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@see",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@throws",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@typeParam",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@virtual",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@betaDocumentation",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@internalRemarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@preapproved",
+          "syntaxKind": "modifier"
+        }
+      ],
+      "supportForTags": {
+        "@alpha": true,
+        "@beta": true,
+        "@defaultValue": true,
+        "@decorator": true,
+        "@deprecated": true,
+        "@eventProperty": true,
+        "@example": true,
+        "@experimental": true,
+        "@inheritDoc": true,
+        "@internal": true,
+        "@label": true,
+        "@link": true,
+        "@override": true,
+        "@packageDocumentation": true,
+        "@param": true,
+        "@privateRemarks": true,
+        "@public": true,
+        "@readonly": true,
+        "@remarks": true,
+        "@returns": true,
+        "@sealed": true,
+        "@see": true,
+        "@throws": true,
+        "@typeParam": true,
+        "@virtual": true,
+        "@betaDocumentation": true,
+        "@internalRemarks": true,
+        "@preapproved": true
+      }
+    }
+  },
+  "kind": "Package",
+  "canonicalReference": "@fluidframework/azure-client!",
+  "docComment": "/**\n * A simple and powerful way to consume collaborative Fluid data with the Azure Fluid Relay service.\n *\n * @packageDocumentation\n */\n",
+  "name": "@fluidframework/azure-client",
+  "members": [
+    {
+      "kind": "EntryPoint",
+      "canonicalReference": "@fluidframework/azure-client!",
+      "name": "",
+      "members": [
+        {
+          "kind": "Class",
+          "canonicalReference": "@fluidframework/azure-client!AzureAudience:class",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class AzureAudience extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "ServiceAudience",
+              "canonicalReference": "fluid-framework!ServiceAudience:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "AzureMember",
+              "canonicalReference": "@fluidframework/azure-client!AzureMember:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "> "
+            },
+            {
+              "kind": "Content",
+              "text": "implements "
+            },
+            {
+              "kind": "Reference",
+              "text": "IAzureAudience",
+              "canonicalReference": "@fluidframework/azure-client!IAzureAudience:type"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AzureAudience",
+          "members": [],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          },
+          "implementsTokenRanges": [
+            {
+              "startIndex": 6,
+              "endIndex": 8
+            }
+          ]
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@fluidframework/azure-client!AzureClient:class",
+          "docComment": "/**\n * AzureClient provides the ability to have a Fluid object backed by the Azure Relay Service or, when running with local tenantId, have it be backed by a Tinylicious local service instance\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class AzureClient "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AzureClient",
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "@fluidframework/azure-client!AzureClient:constructor(1)",
+              "docComment": "/**\n * Creates a new client instance using configuration parameters.\n *\n * @param props - Properties for initializing a new AzureClient instance\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(props: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AzureClientProps",
+                  "canonicalReference": "@fluidframework/azure-client!AzureClientProps:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "props",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@fluidframework/azure-client!AzureClient#createContainer:member(1)",
+              "docComment": "/**\n * Creates a new detached container instance in the Azure Relay Service.\n *\n * @param containerSchema - Container schema for the new container.\n *\n * @returns New detached container instance along with associated services.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "createContainer(containerSchema: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ContainerSchema",
+                  "canonicalReference": "fluid-framework!ContainerSchema:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n        container: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IFluidContainer",
+                  "canonicalReference": "fluid-framework!IFluidContainer:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        services: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AzureContainerServices",
+                  "canonicalReference": "@fluidframework/azure-client!AzureContainerServices:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "containerSchema",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                }
+              ],
+              "name": "createContainer"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@fluidframework/azure-client!AzureClient#getContainer:member(1)",
+              "docComment": "/**\n * Accesses the existing container given its unique ID in the Azure Fluid Relay service.\n *\n * @param id - Unique ID of the container in Azure Fluid Relay service\n *\n * @param containerSchema - Container schema used to access data objects in the container.\n *\n * @returns Existing container instance along with associated services.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getContainer(id: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", containerSchema: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ContainerSchema",
+                  "canonicalReference": "fluid-framework!ContainerSchema:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n        container: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IFluidContainer",
+                  "canonicalReference": "fluid-framework!IFluidContainer:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        services: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AzureContainerServices",
+                  "canonicalReference": "@fluidframework/azure-client!AzureContainerServices:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "id",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "containerSchema",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                }
+              ],
+              "name": "getContainer"
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/azure-client!AzureClientProps:interface",
+          "docComment": "/**\n * Props for initializing a new AzureClient instance\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface AzureClientProps "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AzureClientProps",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureClientProps#connection:member",
+              "docComment": "/**\n * Configuration for establishing a connection with the Azure Relay Service.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly connection: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AzureConnectionConfig",
+                  "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "connection",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureClientProps#logger:member",
+              "docComment": "/**\n * Optional. A logger instance to receive diagnostic messages.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly logger?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITelemetryBaseLogger",
+                  "canonicalReference": "@fluidframework/common-definitions!ITelemetryBaseLogger:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "logger",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig:interface",
+          "docComment": "/**\n * Parameters for establishing a connection with the Azure Fluid Relay service.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface AzureConnectionConfig "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AzureConnectionConfig",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig#orderer:member",
+              "docComment": "/**\n * URI to the Azure Fluid Relay orderer endpoint\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "orderer: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "orderer",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig#storage:member",
+              "docComment": "/**\n * URI to the Azure Fluid Relay storage endpoint\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "storage: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "storage",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig#tenantId:member",
+              "docComment": "/**\n * Unique tenant identifier\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "tenantId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"local\" | string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "tenantId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig#tokenProvider:member",
+              "docComment": "/**\n * Instance that provides Azure Fluid Relay endpoint tokens\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "tokenProvider: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITokenProvider",
+                  "canonicalReference": "@fluidframework/routerlicious-driver!ITokenProvider:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "tokenProvider",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/azure-client!AzureContainerServices:interface",
+          "docComment": "/**\n * AzureContainerServices is returned by the AzureClient alongside a FluidContainer. It holds the functionality specifically tied to the Azure Fluid Relay service, and how the data stored in the FluidContainer is persisted in the backend and consumed by users. Any functionality regarding how the data is handled within the FluidContainer itself, i.e. which data objects or DDSes to use, will not be included here but rather on the FluidContainer class itself.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface AzureContainerServices "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AzureContainerServices",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureContainerServices#audience:member",
+              "docComment": "/**\n * Provides an object that can be used to get the users that are present in this Fluid session and listeners for when the roster has any changes from users joining/leaving the session\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "audience: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IAzureAudience",
+                  "canonicalReference": "@fluidframework/azure-client!IAzureAudience:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "audience",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@fluidframework/azure-client!AzureFunctionTokenProvider:class",
+          "docComment": "/**\n * Token Provider implementation for connecting to an Azure Function endpoint for Azure Fluid Relay service token resolution.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class AzureFunctionTokenProvider implements "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITokenProvider",
+              "canonicalReference": "@fluidframework/routerlicious-driver!ITokenProvider:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AzureFunctionTokenProvider",
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "@fluidframework/azure-client!AzureFunctionTokenProvider:constructor(1)",
+              "docComment": "/**\n * Creates a new instance using configuration parameters.\n *\n * @param azFunctionUrl - URL to Azure Function endpoint\n *\n * @param user - User object\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(azFunctionUrl: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", user?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Pick",
+                  "canonicalReference": "!Pick:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AzureMember",
+                  "canonicalReference": "@fluidframework/azure-client!AzureMember:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<any>, \"userId\" | \"userName\" | \"additionalDetails\"> | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "azFunctionUrl",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "user",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 7
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@fluidframework/azure-client!AzureFunctionTokenProvider#fetchOrdererToken:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "fetchOrdererToken(tenantId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", documentId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITokenResponse",
+                  "canonicalReference": "@fluidframework/routerlicious-driver!ITokenResponse:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "tenantId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "documentId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                }
+              ],
+              "name": "fetchOrdererToken"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@fluidframework/azure-client!AzureFunctionTokenProvider#fetchStorageToken:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "fetchStorageToken(tenantId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", documentId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITokenResponse",
+                  "canonicalReference": "@fluidframework/routerlicious-driver!ITokenResponse:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "tenantId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "documentId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                }
+              ],
+              "name": "fetchStorageToken"
+            }
+          ],
+          "implementsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 3
+            }
+          ]
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/azure-client!AzureMember:interface",
+          "docComment": "/**\n * Since Azure provides user names for all of its members, we extend the IMember interface to include this service-specific value. It will be returned for all audience members connected to Azure.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface AzureMember<T = "
+            },
+            {
+              "kind": "Content",
+              "text": "any"
+            },
+            {
+              "kind": "Content",
+              "text": "> extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "IMember",
+              "canonicalReference": "fluid-framework!IMember:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "typeParameters": [
+            {
+              "typeParameterName": "T",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "name": "AzureMember",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureMember#additionalDetails:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "additionalDetails?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "T"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "additionalDetails",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/azure-client!AzureMember#userName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "userName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "userName",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 3,
+              "endIndex": 5
+            }
+          ]
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@fluidframework/azure-client!IAzureAudience:type",
+          "docComment": "/**\n * Audience object for Azure Fluid Relay containers\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type IAzureAudience = "
+            },
+            {
+              "kind": "Reference",
+              "text": "IServiceAudience",
+              "canonicalReference": "fluid-framework!IServiceAudience:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "AzureMember",
+              "canonicalReference": "@fluidframework/azure-client!AzureMember:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ">"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "IAzureAudience",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          }
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "@fluidframework/azure-client!LOCAL_MODE_TENANT_ID:var",
+          "docComment": "/**\n * Strongly typed id for connecting to a local Azure Fluid Relay service\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "LOCAL_MODE_TENANT_ID = \"local\""
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "LOCAL_MODE_TENANT_ID",
+          "variableTypeTokenRange": {
+            "startIndex": 0,
+            "endIndex": 0
+          }
+        }
+      ]
+    }
+  ]
+}
