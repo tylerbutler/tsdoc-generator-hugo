@@ -1,8 +1,8 @@
 {
   "ts-node": {
-    // It is faster to skip typechecking.
+    // It is faster to skip typechecking, but
     // Remove if you want ts-node to do typechecking.
-    "transpileOnly": true,
+    "transpileOnly": false,
 
     "files": true,
 

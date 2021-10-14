@@ -1,2 +1,2 @@
-import { HugoDocumenter, HugoDocumenterOptions } from "./hugo";
+import { HugoDocumenter, HugoDocumenterOptions } from "./hugo.js";
 

@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/prevent-abbreviations */
-import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiItemKind, ApiModel, ApiPackage, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
+import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiModel, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
 import * as tsdoc from "@microsoft/tsdoc";
 import chalk from "chalk";
 
@@ -32,7 +32,7 @@ export function applyInheritDoc(apiItem: ApiItem, apiModel: ApiModel): void {
                         result.resolvedApiItem.tsdocComment &&
                         result.resolvedApiItem !== apiItem
                     ) {
-                        copyInheritedDocs(apiItem.tsdocComment, result.resolvedApiItem.tsdocComment);
+                        _copyInheritedDocs(apiItem.tsdocComment, result.resolvedApiItem.tsdocComment);
                     }
                 }
             }
@@ -51,7 +51,7 @@ export function applyInheritDoc(apiItem: ApiItem, apiModel: ApiModel): void {
  * Copy the content from `sourceDocComment` to `targetDocComment`.
  * This code is borrowed from DocCommentEnhancer as a temporary workaround.
  */
-function copyInheritedDocs(targetDocComment: tsdoc.DocComment, sourceDocComment: tsdoc.DocComment): void {
+function _copyInheritedDocs(targetDocComment: tsdoc.DocComment, sourceDocComment: tsdoc.DocComment): void {
     targetDocComment.summarySection = sourceDocComment.summarySection;
     targetDocComment.remarksBlock = sourceDocComment.remarksBlock;
 
@@ -84,3 +84,27 @@ export function getConciseSignature(apiItem: ApiItem): string {
  */
 export const getSafeFilenameForName = (name: string): string =>
     name.replace(_badFilenameCharsRegExp, '_').toLowerCase();
+
+// I don't know why using the types from api-extractor-model doesn't work.
+export const enum ApiItemKind {
+    CallSignature = "CallSignature",
+    Class = "Class",
+    Constructor = "Constructor",
+    ConstructSignature = "ConstructSignature",
+    EntryPoint = "EntryPoint",
+    Enum = "Enum",
+    EnumMember = "EnumMember",
+    Function = "Function",
+    IndexSignature = "IndexSignature",
+    Interface = "Interface",
+    Method = "Method",
+    MethodSignature = "MethodSignature",
+    Model = "Model",
+    Namespace = "Namespace",
+    Package = "Package",
+    Property = "Property",
+    PropertySignature = "PropertySignature",
+    TypeAlias = "TypeAlias",
+    Variable = "Variable",
+    None = "None"
+}
