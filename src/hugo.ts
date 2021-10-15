@@ -1,31 +1,61 @@
 // import * as ae from "@microsoft/api-extractor-model";
 // const { ApiItem, ApiItemKind, ApiModel, ApiPackage, ApiParameterListMixin } = ae;
 
-import { ApiDeclaredItem, ApiDocumentedItem, ApiItemKind, ApiReleaseTagMixin, ReleaseTag } from "@microsoft/api-extractor-model";
-import { ApiItem, ApiModel, ApiPackage, ApiParameterListMixin } from "@microsoft/api-extractor-model";
-import path from "path";
-import { fromMarkdown } from "mdast-util-from-markdown";
-// import { MarkdownDocumenterAccessor } from "../plugin/MarkdownDocumenterAccessor";
-// import { MarkdownDocumenterFeatureContext } from "../plugin/MarkdownDocumenterFeature";
-// import { MarkdownDocumenter } from "@microsoft/api-documenter";
-import type { Node, Parent } from "unist";
-import type { Heading, Code, Link, Root, Content, Strong, } from "mdast";
+import {
+    ApiClass,
+    ApiDeclaredItem,
+    ApiDocumentedItem,
+    ApiInterface,
+    ApiItem,
+    ApiItemKind,
+    ApiModel,
+    ApiNamespace,
+    ApiPackage,
+    ApiParameterListMixin,
+    ApiReleaseTagMixin,
+    Excerpt,
+    ExcerptTokenKind,
+    IResolveDeclarationReferenceResult,
+    ReleaseTag
+} from "@microsoft/api-extractor-model";
+import {
+    DocBlock,
+    DocBlockTag,
+    DocCodeSpan,
+    DocComment,
+    DocErrorText,
+    DocEscapedText,
+    DocFencedCode,
+    DocHtmlEndTag,
+    DocHtmlStartTag,
+    DocLinkTag,
+    DocNode,
+    DocNodeKind,
+    DocNodeTransforms,
+    DocParagraph,
+    DocPlainText,
+    DocSection,
+    StandardTags,
+    StringBuilder
+} from "@microsoft/tsdoc";
+import { FileSystem as fs, PackageName } from "@rushstack/node-core-library";
+import chalk from "chalk";
+import type { Break, Code, Content, Heading, HTML, InlineCode, Link, PhrasingContent, Root, Text } from "mdast";
 import * as md from "mdast-builder";
+import { Paragraph } from "mdast-util-from-markdown/lib";
+import { frontmatterToMarkdown } from "mdast-util-frontmatter";
+import { gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
+import { toString } from "mdast-util-to-string";
+import path from "path";
+import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { DocComment, DocNode, DocNodeKind, DocSection, StringBuilder, TSDocConfiguration } from "@microsoft/tsdoc";
-import { remark } from "remark";
-import remarkGfm from "remark-gfm";
-import { gfmToMarkdown } from "mdast-util-gfm";
-
-import { FileSystem as fs, PackageName } from "@rushstack/node-core-library";
-import { getSafeFilenameForName } from "./util.js";
-import chalk from "chalk";
-import { Paragraph } from "mdast-util-from-markdown/lib";
 import { DocumenterConfig } from "./DocumenterConfig.js";
-import { frontmatterToMarkdown } from "mdast-util-frontmatter";
 import { callout } from "./nodes.js";
+import { getSafeFilenameForName, isAllowedPackage } from "./util.js";
+
+
 
 export class FrontMatter {
     public title: string = "";
@@ -108,7 +138,7 @@ export class HugoDocumenter {
     private readonly _inputPath: string;
     private readonly _outputPath: string;
     private readonly _documenterConfig: DocumenterConfig;
-    private _frontmatter?: FrontMatter;
+    private _frontmatter: FrontMatter;
     private _currentApiItemPage?: ApiItem;
 
     public constructor(options: HugoDocumenterOptions) {
@@ -116,6 +146,7 @@ export class HugoDocumenter {
         this._inputPath = options.inputPath;
         this._outputPath = options.outputPath;
         this._documenterConfig = options.documenterConfig;
+        this._frontmatter = new FrontMatter();
     }
 
     private _loadApiFiles(inputPath: string, model?: ApiModel): ApiModel {
@@ -152,30 +183,108 @@ export class HugoDocumenter {
             this._currentApiItemPage = apiItem;
         }
 
+        const tree = md.root() as Root;
+
         const breadcrumb = this.getBreadcrumb(apiItem);
+        tree.children.push(breadcrumb);
+
         const heading = this.getHeading(apiItem);
+        if (heading) {
+            tree.children.push(heading);
+        }
+
         const betaWarning = this.getBetaWarning(apiItem);
+        if (betaWarning) {
+            tree.children.push(betaWarning);
+        }
+
         let summarySection: Paragraph | undefined;
         if (apiItem instanceof ApiDocumentedItem) {
             summarySection = this.getSummarySection(apiItem);
         }
-        if (apiItem instanceof ApiDeclaredItem) {
-            this.getCodeExcerpt(apiItem);
-        }
-
-        const tree = md.root([
-            breadcrumb,
-        ]) as Root;
-
-        if (heading) {
-            tree.children.push(heading);
-        }
-        if (betaWarning) {
-            tree.children.push(betaWarning);
-        }
         if (summarySection) {
             tree.children.push(summarySection);
         }
+
+        let codeExcerpt: Paragraph;
+        if (apiItem instanceof ApiDeclaredItem) {
+            codeExcerpt = md.paragraph(...this.getCodeExcerpt(apiItem as ApiDeclaredItem)) as Paragraph;
+            tree.children.push(codeExcerpt);
+        }
+
+        let appendRemarks: boolean = true;
+        let remarks: Paragraph;
+        switch (apiItem.kind) {
+            case ApiItemKind.Class:
+            case ApiItemKind.Interface:
+            case ApiItemKind.Namespace:
+            case ApiItemKind.Package:
+                remarks = this.getRemarks(apiItem);
+                tree.children.push(remarks);
+                appendRemarks = false;
+                break;
+        }
+
+        switch (apiItem.kind) {
+            case ApiItemKind.Class:
+                // this._writeClassTables(output, apiItem as ApiClass);
+                break;
+            case ApiItemKind.Enum:
+                // this._writeEnumTables(output, apiItem as ApiEnum);
+                break;
+            case ApiItemKind.Interface:
+                // this._writeInterfaceTables(output, apiItem as ApiInterface);
+                break;
+            case ApiItemKind.Constructor:
+            case ApiItemKind.ConstructSignature:
+            case ApiItemKind.Method:
+            case ApiItemKind.MethodSignature:
+            case ApiItemKind.Function:
+                // this._writeParameterTables(output, apiItem as ApiParameterListMixin);
+                // this._writeThrowsSection(output, apiItem);
+                break;
+            case ApiItemKind.Namespace:
+                // this._writePackageOrNamespaceTables(output, apiItem as ApiNamespace);
+                break;
+            case ApiItemKind.Model:
+                // this._writeModelTable(output, apiItem as ApiModel);
+                break;
+            case ApiItemKind.Package:
+                // this._writePackageOrNamespaceTables(output, apiItem as ApiPackage);
+                break;
+            case ApiItemKind.Property:
+            case ApiItemKind.PropertySignature:
+                break;
+            case ApiItemKind.TypeAlias:
+                break;
+            case ApiItemKind.Variable:
+                break;
+            default:
+                throw new Error('Unsupported API item kind: ' + apiItem.kind);
+        }
+
+        if (appendRemarks) {
+            remarks = this.getRemarks(apiItem);
+            tree.children.push(remarks);
+        }
+
+        // we only generate top level package pages (which will generate class and interface subpages)
+        const pkg: ApiPackage | undefined = apiItem.getAssociatedPackage();
+        if (!pkg || !isAllowedPackage(pkg, this._documenterConfig)) {
+            if (this._documenterConfig && this._documenterConfig.logLevel === 'verbose') {
+                console.log(`skipping ${apiItem.getScopedNameWithinPackage()}`);
+                if (pkg) {
+                    console.log(`\t${pkg.name} package isn't in the allowed list`);
+                }
+            }
+            return;
+        }
+
+        // temp hack to reduce the size of the generated content
+        if (!this._shouldHaveStandalonePage(apiItem)) {
+            return;
+        }
+
         // const log = processor.stringify();
 
         // console.log(toMarkdown(mdRoot));
@@ -184,11 +293,11 @@ export class HugoDocumenter {
 
     }
 
-    protected getBreadcrumb(apiItem: ApiItem): Node {
+    protected getBreadcrumb(apiItem: ApiItem): Paragraph {
         const output = md.paragraph([
-            md.link(this._getLinkFilenameForApiItem(apiItem), "Home"),
+            md.link(this._getLinkFilenameForApiItem(apiItem), "Home", [md.text("Home")]),
             md.text(" > "),
-        ]);
+        ]) as Paragraph;
 
         for (const hierarchyItem of apiItem.getHierarchy()) {
             console.log(chalk.red(`hierarchyItem: ${hierarchyItem.kind} ${hierarchyItem}`));
@@ -200,7 +309,7 @@ export class HugoDocumenter {
                     // this may change in the future.
                     break;
                 default:
-                    output.children.push(md.link(this._getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName));
+                    output.children.push(md.link(this._getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName, [md.text(hierarchyItem.displayName)]) as Link);
             }
         }
         return output;
@@ -287,14 +396,205 @@ export class HugoDocumenter {
         }
     }
 
-    protected getCodeExcerpt(apiItem: ApiDeclaredItem) {
+    protected getCodeExcerpt(apiItem: ApiDeclaredItem): Content[] {
         const nodes: Content[] = [];
         if (apiItem.excerpt.text.length > 0) {
             nodes.push(md.paragraph(md.strong([md.text("Signature:")])) as Paragraph);
             nodes.push(md.code("typescript", apiItem.getExcerptWithModifiers()) as Code)
         }
+        nodes.push(...this.getTypeHeritage(apiItem));
+        return nodes;
+    }
 
-        this._writeHeritageTypes(output, apiItem);
+    protected getTypeHeritage(apiItem: ApiDeclaredItem): Content[] {
+        const nodes: Content[] = [];
+
+        if (apiItem instanceof ApiClass) {
+            if (apiItem.extendsType) {
+                const extendsParagraph = md.paragraph(md.strong([md.text("Extends: "), ...this._appendExcerptWithHyperlinks(apiItem.extendsType.excerpt)])) as Paragraph;
+                nodes.push(extendsParagraph);
+            }
+            if (apiItem.implementsTypes.length > 0) {
+                const extendsParagraph = md.paragraph(md.strong([md.text("Implements: ")])) as Paragraph;
+
+                let needsComma: boolean = false;
+                for (const implementsType of apiItem.implementsTypes) {
+                    if (needsComma) {
+                        extendsParagraph.children.push(md.text(", ") as Text);
+                    }
+                    nodes.push(...this._appendExcerptWithHyperlinks(implementsType.excerpt));
+                    needsComma = true;
+                    nodes.push(extendsParagraph);
+                }
+            }
+            if (apiItem.typeParameters.length > 0) {
+                console.log(`HERITAGE GENERIC: ${JSON.stringify(apiItem.typeParameters.map(v => v.name))}`);
+                const typeParamParagraph = md.paragraph(md.strong(md.text("Type parameters: "))) as Paragraph;
+                nodes.push(typeParamParagraph);
+
+                for (const typeParam of apiItem.typeParameters) {
+                    const paragraph = md.paragraph([
+                        md.strong(md.text(typeParam.name)),
+                        md.text(` -- `)
+                    ]) as Paragraph;
+                    if (typeParam.tsdocTypeParamBlock) {
+                        console.log(`Appending section for ${typeParam.name}`);
+
+                        // TODO: figure out how to do this
+                        // this._appendSection(typeParamParagraph, typeParam.tsdocTypeParamBlock.content.);
+                    }
+
+                    nodes.push(paragraph);
+                }
+            }
+        }
+
+        if (apiItem instanceof ApiInterface) {
+            if (apiItem.extendsTypes.length > 0) {
+                const extendsParagraph = md.paragraph(md.strong(md.text("Extends: "))) as Paragraph;
+
+                let needsComma: boolean = false;
+                for (const extendsType of apiItem.extendsTypes) {
+                    if (needsComma) {
+                        extendsParagraph.children.push(md.text(", ") as Text);
+                    }
+                    nodes.push(...this._appendExcerptWithHyperlinks(extendsType.excerpt));
+                    needsComma = true;
+                    nodes.push(extendsParagraph);
+                }
+            }
+        }
+
+        return nodes;
+    }
+
+    protected getRemarks(apiItem: ApiItem): Paragraph {
+        const nodes: Content[] = [];
+        if (apiItem instanceof ApiDocumentedItem) {
+            const tsdocComment: DocComment | undefined = apiItem.tsdocComment;
+
+            if (tsdocComment) {
+                // Write the @remarks block
+                if (tsdocComment.remarksBlock) {
+                    nodes.push(md.heading(3, md.text("Remarks")) as Heading)
+                    nodes.push(...docNodesToMdast(tsdocComment.remarksBlock.content.nodes));
+                }
+
+                // Write the @example blocks
+                const exampleBlocks: DocBlock[] = tsdocComment.customBlocks.filter(
+                    (x) => x.blockTag.tagNameWithUpperCase === StandardTags.example.tagNameWithUpperCase
+                );
+
+                let exampleNumber: number = 1;
+                for (const exampleBlock of exampleBlocks) {
+                    const heading: string = exampleBlocks.length > 1 ? `Example ${exampleNumber}` : 'Example';
+
+                    nodes.push(md.heading(4, md.text(heading)) as Heading);
+                    nodes.push(...docNodesToMdast(exampleBlock.content.nodes));
+
+                    ++exampleNumber;
+                }
+            }
+        }
+        return md.paragraph(nodes) as Paragraph;
+    }
+
+    private _appendExcerptWithHyperlinks(excerpt: Excerpt): PhrasingContent[] {
+        const nodes: PhrasingContent[] = [];
+
+        for (const token of excerpt.spannedTokens) {
+            // Markdown doesn't provide a standardized syntax for hyperlinks inside code spans, so we will render
+            // the type expression as DocPlainText.  Instead of creating multiple DocParagraphs, we can simply
+            // discard any newlines and let the renderer do normal word-wrapping.
+            const unwrappedTokenText: string = token.text.replace(/[\r\n]+/g, ' ');
+
+            // If it's hyperlinkable, then append a DocLinkTag
+            if (token.kind === ExcerptTokenKind.Reference && token.canonicalReference) {
+                const apiItemResult: IResolveDeclarationReferenceResult = this._apiModel.resolveDeclarationReference(
+                    token.canonicalReference,
+                    undefined
+                );
+
+                if (apiItemResult.resolvedApiItem) {
+                    nodes.push(md.link(
+                        this._getLinkFilenameForApiItem(apiItemResult.resolvedApiItem),
+                        unwrappedTokenText,
+                        [md.text(unwrappedTokenText)]
+                    ) as Link);
+                    continue;
+                }
+            }
+        }
+        return nodes;
+    }
+
+    protected getFrontMatter(item: ApiItem): void {
+
+        this._frontmatter.kind = item.kind;
+        this._frontmatter.title = item.displayName.replace(/"/g, '').replace(/!/g, '');
+        let apiMembers: ReadonlyArray<ApiItem> = item.members;
+        // const mdEmitter = this._markdownEmitter;
+
+        const extractSummary = (docComment: DocComment): string => {
+            // const tmpStrBuilder: StringBuilder = new StringBuilder();
+            const summary = docNodeToMdast(docComment!.summarySection);
+            if (summary) {
+                return toString(summary);
+            }
+            return "";
+        }
+        switch (item.kind) {
+            case ApiItemKind.Class:
+                const classItem: ApiClass = item as ApiClass;
+                if (classItem.tsdocComment) {
+                    this._frontmatter.summary = extractSummary(classItem.tsdocComment);
+                }
+                this._frontmatter.title += " Class"
+                break;
+            case ApiItemKind.Interface:
+                this._frontmatter.title += " Interface"
+                const interfaceItem: ApiInterface = item as ApiInterface;
+                if (interfaceItem.tsdocComment) {
+                    this._frontmatter.summary = extractSummary(interfaceItem.tsdocComment);
+                }
+                break
+            case ApiItemKind.Package:
+                this._frontmatter.title += " Package"
+                apiMembers =
+                    item.kind === ApiItemKind.Package
+                        ? (item as ApiPackage).entryPoints[0].members
+                        : (item as ApiNamespace).members;
+                const pkgItem: ApiPackage = item as ApiPackage;
+                if (pkgItem.tsdocComment) {
+                    this._frontmatter.summary = extractSummary(pkgItem.tsdocComment);
+                }
+                break
+            default:
+                break;
+        }
+
+        this._frontmatter.members = new Map<string, Map<string, string>>();
+        apiMembers.forEach(element => {
+            if (element.displayName === "") { return }
+            if (!this._frontmatter.members[element.kind]) { this._frontmatter.members[element.kind] = {} }
+            this._frontmatter.members[element.kind][element.displayName] = this._getLinkFilenameForApiItem(element);
+        });
+
+        const pkg: ApiPackage | undefined = item.getAssociatedPackage();
+        if (pkg) {
+            this._frontmatter.package = pkg.name.replace(/"/g, '').replace(/!/g, '');
+            this._frontmatter.unscopedPackageName = PackageName.getUnscopedName(pkg.name);
+        } else {
+            this._frontmatter.package = "undefined";
+        }
+        // this._frontmatter.members = this._frontmatter.members;
+
+
+        stringBuilder.append(JSON.stringify(this._frontmatter));
+        stringBuilder.append(
+            '\n\n[//]: # (Do not edit this file. It is automatically generated by API Documenter.)\n\n'
+        );
+
     }
 
     protected _getFilenameForApiItem(apiItem: ApiItem): string {
@@ -316,7 +616,6 @@ export class HugoDocumenter {
             }
 
             switch (hierarchyItem.kind) {
-                case ApiItemKind.Model:
                 case ApiItemKind.EntryPoint:
                     break;
                 case ApiItemKind.Package:
@@ -340,5 +639,67 @@ export class HugoDocumenter {
             ApiItemKind.Class,
             ApiItemKind.Interface
         ].includes(apiItem.kind);
+    }
+}
+
+function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
+    return nodes.filter((n) => docNodeToMdast(n) !== undefined).map((n) => docNodeToMdast(n)!)
+}
+
+function docNodeToMdast(docNode: DocNode): Content | undefined {
+    switch (docNode.kind) {
+        case DocNodeKind.Block:
+        case DocNodeKind.BlockTag:
+            const tagNode: DocBlockTag = docNode as DocBlockTag;
+            console.warn(chalk.yellow(`Unsupported block tag: ${tagNode.tagName}`));
+            break;
+        case DocNodeKind.CodeSpan:
+            const code = docNode as DocCodeSpan;
+            return md.inlineCode(code.code) as InlineCode;
+        case DocNodeKind.Comment:
+            const comment = docNode as DocComment;
+            break;
+        case DocNodeKind.ErrorText:
+            const docErrorText = docNode as DocErrorText;
+            return md.text(docErrorText.text) as Text;
+        case DocNodeKind.EscapedText:
+            const docEscapedText = docNode as DocEscapedText;
+            return md.text(docEscapedText.decodedText) as Text;
+        case DocNodeKind.FencedCode:
+            const docFencedCode = docNode as DocFencedCode;
+            return md.code(docFencedCode.language, docFencedCode.code) as Code;
+        case DocNodeKind.HtmlStartTag:
+        case DocNodeKind.HtmlEndTag:
+            const docHtmlTag = docNode as DocHtmlStartTag | DocHtmlEndTag;
+            return md.html(docHtmlTag.emitAsHtml()) as HTML;
+        case DocNodeKind.InlineTag:
+            break;
+        case DocNodeKind.LinkTag:
+            const docLinkTag = docNode as DocLinkTag;
+            if (docLinkTag.codeDestination) {
+                throw new Error("writeLinkTagWithCodeDestination()");
+            } else if (docLinkTag.urlDestination) {
+                const linkText: string =
+                    docLinkTag.linkText !== undefined ? docLinkTag.linkText : docLinkTag.urlDestination;
+                return md.link(docLinkTag.urlDestination, undefined, md.text(linkText)) as Link;
+            } else if (docLinkTag.linkText) {
+                return md.text(docLinkTag.linkText) as Text;
+            }
+        case DocNodeKind.Paragraph:
+            const docParagraph = docNode as DocParagraph;
+            const trimmedParagraph = DocNodeTransforms.trimSpacesInParagraph(docParagraph);
+            const children: Content[] = docNodesToMdast(trimmedParagraph.nodes);
+            return md.paragraph(children) as Paragraph;
+        case DocNodeKind.PlainText:
+            const docPlainText = docNode as DocPlainText;
+            return md.text(docPlainText.text) as Text;
+        case DocNodeKind.Section:
+            const docSection: DocSection = docNode as DocSection;
+            const sectionChildren: Content[] = docNodesToMdast(docSection.nodes);
+            return md.paragraph(sectionChildren) as Paragraph;
+        case DocNodeKind.SoftBreak:
+            return md.brk as Break;
+        default:
+            throw new Error(`Unsupported DocNodeKind kind: ${docNode.kind}`);
     }
 }

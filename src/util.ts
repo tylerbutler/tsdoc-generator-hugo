@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/prevent-abbreviations */
-import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiModel, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
+import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiModel, ApiPackage, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
 import * as tsdoc from "@microsoft/tsdoc";
 import chalk from "chalk";
 import { string } from "yargs";
@@ -86,7 +86,19 @@ export function getConciseSignature(apiItem: ApiItem): string {
 export const getSafeFilenameForName = (name: string): string =>
     name.replace(_badFilenameCharsRegExp, '_').toLowerCase();
 
+export function isAllowedPackage(pkg: ApiPackage, config: DocumenterConfig): boolean {
+    if (config && config.onlyPackagesStartingWith) {
+        if (typeof config.onlyPackagesStartingWith === "string") {
+            return pkg.name.startsWith(config.onlyPackagesStartingWith);
+        } else {
+            return config.onlyPackagesStartingWith.some((prefix) => pkg.name.startsWith(prefix));
+        }
+    }
+    return true;
+}
+
 import { URL } from "url"; // in Browser, the URL in native accessible on window
+import { DocumenterConfig } from "./DocumenterConfig";
 
 export const __filename = new URL("", import.meta.url).pathname;
 // Will contain trailing slash
