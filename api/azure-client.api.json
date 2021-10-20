@@ -161,7 +161,7 @@
   },
   "kind": "Package",
   "canonicalReference": "@fluidframework/azure-client!",
-  "docComment": "/**\n * A simple and powerful way to consume collaborative Fluid data with the Azure Fluid Relay service.\n *\n * @packageDocumentation\n */\n",
+  "docComment": "/**\n * A simple and powerful way to consume collaborative Fluid data with the Azure Fluid Relay.\n *\n * @packageDocumentation\n */\n",
   "name": "@fluidframework/azure-client",
   "members": [
     {
@@ -227,7 +227,7 @@
         {
           "kind": "Class",
           "canonicalReference": "@fluidframework/azure-client!AzureClient:class",
-          "docComment": "/**\n * AzureClient provides the ability to have a Fluid object backed by the Azure Relay Service or, when running with local tenantId, have it be backed by a Tinylicious local service instance\n */\n",
+          "docComment": "/**\n * AzureClient provides the ability to have a Fluid object backed by the Azure Fluid Relay or, when running with local tenantId, have it be backed by a local Azure Fluid Relay instance.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -271,7 +271,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@fluidframework/azure-client!AzureClient#createContainer:member(1)",
-              "docComment": "/**\n * Creates a new detached container instance in the Azure Relay Service.\n *\n * @param containerSchema - Container schema for the new container.\n *\n * @returns New detached container instance along with associated services.\n */\n",
+              "docComment": "/**\n * Creates a new detached container instance in the Azure Fluid Relay.\n *\n * @param containerSchema - Container schema for the new container.\n *\n * @returns New detached container instance along with associated services.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -340,7 +340,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@fluidframework/azure-client!AzureClient#getContainer:member(1)",
-              "docComment": "/**\n * Accesses the existing container given its unique ID in the Azure Fluid Relay service.\n *\n * @param id - Unique ID of the container in Azure Fluid Relay service\n *\n * @param containerSchema - Container schema used to access data objects in the container.\n *\n * @returns Existing container instance along with associated services.\n */\n",
+              "docComment": "/**\n * Accesses the existing container given its unique ID in the Azure Fluid Relay.\n *\n * @param id - Unique ID of the container in Azure Fluid Relay.\n *\n * @param containerSchema - Container schema used to access data objects in the container.\n *\n * @returns Existing container instance along with associated services.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -440,7 +440,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@fluidframework/azure-client!AzureClientProps#connection:member",
-              "docComment": "/**\n * Configuration for establishing a connection with the Azure Relay Service.\n */\n",
+              "docComment": "/**\n * Configuration for establishing a connection with the Azure Fluid Relay.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -497,7 +497,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@fluidframework/azure-client!AzureConnectionConfig:interface",
-          "docComment": "/**\n * Parameters for establishing a connection with the Azure Fluid Relay service.\n */\n",
+          "docComment": "/**\n * Parameters for establishing a connection with the Azure Fluid Relay.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -618,7 +618,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@fluidframework/azure-client!AzureContainerServices:interface",
-          "docComment": "/**\n * AzureContainerServices is returned by the AzureClient alongside a FluidContainer. It holds the functionality specifically tied to the Azure Fluid Relay service, and how the data stored in the FluidContainer is persisted in the backend and consumed by users. Any functionality regarding how the data is handled within the FluidContainer itself, i.e. which data objects or DDSes to use, will not be included here but rather on the FluidContainer class itself.\n */\n",
+          "docComment": "/**\n * AzureContainerServices is returned by the AzureClient alongside a FluidContainer. It holds the functionality specifically tied to the Azure Fluid Relay, and how the data stored in the FluidContainer is persisted in the backend and consumed by users. Any functionality regarding how the data is handled within the FluidContainer itself, i.e. which data objects or DDSes to use, will not be included here but rather on the FluidContainer class itself.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -661,7 +661,7 @@
         {
           "kind": "Class",
           "canonicalReference": "@fluidframework/azure-client!AzureFunctionTokenProvider:class",
-          "docComment": "/**\n * Token Provider implementation for connecting to an Azure Function endpoint for Azure Fluid Relay service token resolution.\n */\n",
+          "docComment": "/**\n * Token Provider implementation for connecting to an Azure Function endpoint for Azure Fluid Relay token resolution.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1040,7 +1040,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "@fluidframework/azure-client!LOCAL_MODE_TENANT_ID:var",
-          "docComment": "/**\n * Strongly typed id for connecting to a local Azure Fluid Relay service\n */\n",
+          "docComment": "/**\n * Strongly typed id for connecting to a local Azure Fluid Relay.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

@@ -161,7 +161,7 @@
   },
   "kind": "Package",
   "canonicalReference": "@fluidframework/azure-service-utils!",
-  "docComment": "/**\n * A set of helper utilities for building backend APIs for use with Azure Fluid Relay service.\n *\n * @packageDocumentation\n */\n",
+  "docComment": "/**\n * A set of helper utilities for building backend APIs for use with Azure Fluid Relay.\n *\n * @packageDocumentation\n */\n",
   "name": "@fluidframework/azure-service-utils",
   "members": [
     {

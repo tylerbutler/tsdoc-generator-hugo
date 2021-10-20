@@ -170,6 +170,36 @@
       "name": "",
       "members": [
         {
+          "kind": "Variable",
+          "canonicalReference": "@fluidframework/test-client-utils!generateTestUser:var",
+          "docComment": "/**\n * Create a new user object with a unique id (uuid) and random name (FIRST LAST)\n *\n * @returns a user object with a name and id property\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "generateTestUser: "
+            },
+            {
+              "kind": "Content",
+              "text": "() => "
+            },
+            {
+              "kind": "Reference",
+              "text": "IUser",
+              "canonicalReference": "@fluidframework/protocol-definitions!IUser:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    name: string;\n}"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "generateTestUser",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 4
+          }
+        },
+        {
           "kind": "Class",
           "canonicalReference": "@fluidframework/test-client-utils!InsecureTokenProvider:class",
           "docComment": "/**\n * As the name implies this is not secure and should not be used in production. It simply makes the example easier to get up and running.\n */\n",

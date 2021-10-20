@@ -850,6 +850,33 @@
                 "endIndex": 5
               },
               "isStatic": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fluid-framework!FluidContainer#isDirty:member",
+              "docComment": "/**\n * A container is considered **dirty** if it has local changes that have not yet been acknowledged by the service. acknowledged by the service. Closing the container while `isDirty === true` will result in the loss of these local changes. You should always check the `isDirty` flag before closing the container or navigating away from the page.\n *\n * A container is considered dirty in the following cases:\n *\n * 1. The container has local changes that have not yet been acknowledged by the service. These unacknowledged changes will be lost if the container is closed.\n *\n * 1. There is no network connection while making changes to the container. These changes cannot be acknowledged by the service until the network connection is restored.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get isDirty(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "isDirty",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false
             }
           ],
           "extendsTokenRange": {
@@ -1200,6 +1227,32 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "initialObjects",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fluid-framework!IFluidContainer#isDirty:member",
+              "docComment": "/**\n * A container is considered **dirty** if it has local changes that have not yet been acknowledged by the service. acknowledged by the service. Closing the container while `isDirty === true` will result in the loss of these local changes. You should always check the `isDirty` flag before closing the container or navigating away from the page.\n *\n * A container is considered dirty in the following cases:\n *\n * 1. The container has local changes that have not yet been acknowledged by the service. These unacknowledged changes will be lost if the container is closed.\n *\n * 1. There is no network connection while making changes to the container. These changes cannot be acknowledged by the service until the network connection is restored.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly isDirty: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "isDirty",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -7329,6 +7382,190 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "fluid-framework!IIntervalCollectionEvent:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface IIntervalCollectionEvent<TInterval extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "ISerializableInterval",
+              "canonicalReference": "fluid-framework!ISerializableInterval:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "> extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "IEvent",
+              "canonicalReference": "@fluidframework/common-definitions!IEvent:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "typeParameters": [
+            {
+              "typeParameterName": "TInterval",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "name": "IIntervalCollectionEvent",
+          "members": [
+            {
+              "kind": "CallSignature",
+              "canonicalReference": "fluid-framework!IIntervalCollectionEvent:call(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "(event: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"addInterval\" | \"deleteInterval\""
+                },
+                {
+                  "kind": "Content",
+                  "text": ", listener: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(interval: TInterval, local: boolean, op: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ISequencedDocumentMessage",
+                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "event",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "listener",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "CallSignature",
+              "canonicalReference": "fluid-framework!IIntervalCollectionEvent:call(2)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "(event: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"propertyChanged\""
+                },
+                {
+                  "kind": "Content",
+                  "text": ", listener: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(interval: TInterval, propertyArgs: MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertySet",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 2,
+              "parameters": [
+                {
+                  "parameterName": "event",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "listener",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
+                  }
+                }
+              ]
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 3,
+              "endIndex": 5
+            }
+          ]
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "fluid-framework!IIntervalHelpers:interface",
           "docComment": "",
           "excerptTokens": [
@@ -7719,6 +7956,22 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", collaborating?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", seq?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
                   "text": ", op?: "
                 },
                 {
@@ -7736,7 +7989,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "void"
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertySet",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
                 },
                 {
                   "kind": "Content",
@@ -7746,8 +8008,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
+                "startIndex": 11,
+                "endIndex": 14
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -7760,10 +8022,24 @@
                   }
                 },
                 {
-                  "parameterName": "op",
+                  "parameterName": "collaborating",
                   "parameterTypeTokenRange": {
                     "startIndex": 4,
-                    "endIndex": 6
+                    "endIndex": 5
+                  }
+                },
+                {
+                  "parameterName": "seq",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
+                  }
+                },
+                {
+                  "parameterName": "op",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 8,
+                    "endIndex": 10
                   }
                 }
               ],
@@ -8153,6 +8429,82 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "fluid-framework!Interval#modify:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "modify(label: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", start: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", end: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Interval",
+                  "canonicalReference": "fluid-framework!Interval:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "label",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "start",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "end",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                }
+              ],
+              "name": "modify"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "fluid-framework!Interval#overlaps:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -8223,6 +8575,38 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "properties",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fluid-framework!Interval#propertyManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "propertyManager: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertiesManager",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertiesManager:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "propertyManager",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -8382,12 +8766,21 @@
             },
             {
               "kind": "Reference",
-              "text": "EventEmitter",
-              "canonicalReference": "!EventEmitter:class"
+              "text": "TypedEventEmitter",
+              "canonicalReference": "@fluidframework/common-utils!TypedEventEmitter:class"
             },
             {
               "kind": "Content",
-              "text": " "
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "IIntervalCollectionEvent",
+              "canonicalReference": "fluid-framework!IIntervalCollectionEvent:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<TInterval>> "
             }
           ],
           "releaseTag": "Public",
@@ -8906,6 +9299,223 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "fluid-framework!IntervalCollection#change:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "change(id: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", start?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", end?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "TInterval | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "id",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "start",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "end",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                }
+              ],
+              "name": "change"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fluid-framework!IntervalCollection#changeInterval:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "changeInterval(serializedInterval: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ISerializedInterval",
+                  "canonicalReference": "fluid-framework!ISerializedInterval:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", local: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", op: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ISequencedDocumentMessage",
+                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "serializedInterval",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "local",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "op",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                }
+              ],
+              "name": "changeInterval"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fluid-framework!IntervalCollection#changeProperties:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "changeProperties(id: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", props: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertySet",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "id",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "props",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 5
+                  }
+                }
+              ],
+              "name": "changeProperties"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "fluid-framework!IntervalCollection#CreateBackwardIteratorWithEndPosition:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -9107,7 +9717,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!IntervalCollection#delete:member(1)",
-              "docComment": "/**\n * @deprecated\n *\n * - delete by start/end position is deprecated. Please use removeIntervalById.\n */\n",
+              "docComment": "/**\n * @deprecated\n *\n * delete by start/end position is deprecated. Use removeIntervalById.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9439,7 +10049,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!IntervalCollection#getView:member(1)",
-              "docComment": "/**\n * @deprecated\n *\n * - IntervalCollectionView has been removed. Please refer to IntervalCollection directly.\n */\n",
+              "docComment": "/**\n * @deprecated\n *\n * IntervalCollectionView has been removed. Refer to IntervalCollection directly.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9588,84 +10198,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!IntervalCollection#on:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "on(event: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"addInterval\" | \"deleteInterval\""
-                },
-                {
-                  "kind": "Content",
-                  "text": ", listener: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "(interval: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ISerializedInterval",
-                  "canonicalReference": "fluid-framework!ISerializedInterval:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", local: boolean, op: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ISequencedDocumentMessage",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "this"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 10
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "event",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "listener",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 8
-                  }
-                }
-              ],
-              "name": "on"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "fluid-framework!IntervalCollection#previousInterval:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -9786,7 +10318,7 @@
           ],
           "extendsTokenRange": {
             "startIndex": 3,
-            "endIndex": 5
+            "endIndex": 7
           },
           "implementsTokenRanges": []
         },
@@ -9940,7 +10472,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "fluid-framework!ISequenceDeltaRange:interface",
-          "docComment": "",
+          "docComment": "/**\n * A range that has changed corresponding to a segment modification.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -10014,7 +10546,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "fluid-framework!ISequenceDeltaRange#position:member",
-              "docComment": "",
+              "docComment": "/**\n * The index of the start of the range.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10067,7 +10599,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "fluid-framework!ISequenceDeltaRange#segment:member",
-              "docComment": "",
+              "docComment": "/**\n * The segment that corresponds to the range.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10140,11 +10672,36 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", collaborating?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", seq?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertySet",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
                 },
                 {
                   "kind": "Content",
@@ -10153,8 +10710,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 8,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -10164,6 +10721,20 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 3
+                  }
+                },
+                {
+                  "parameterName": "collaborating",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 4,
+                    "endIndex": 5
+                  }
+                },
+                {
+                  "parameterName": "seq",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
                   }
                 }
               ],
@@ -10223,6 +10794,37 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "properties",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fluid-framework!ISerializableInterval#propertyManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "propertyManager: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertiesManager",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertiesManager:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "propertyManager",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -10589,7 +11191,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "fluid-framework!ISharedSegmentSequenceEvents:interface",
-          "docComment": "",
+          "docComment": "/**\n * Events emitted in response to changes to the sequence data.\n *\n * ### \"sequenceDelta\"\n *\n * The sequenceDelta event is emitted when segments are inserted, annotated, or removed.\n *\n * #### Listener signature\n * ```typescript\n * (event: SequenceDeltaEvent, target: IEventThisPlaceHolder) => void\n * ```\n *\n * - `event` - Various information on the segments that were modified.\n *\n * - `target` - The sequence itself.\n *\n * ### \"maintenance\"\n *\n * The maintenance event is emitted when segments are modified during merge-tree maintenance.\n *\n * #### Listener signature\n * ```typescript\n * (event: SequenceMaintenanceEvent, target: IEventThisPlaceHolder) => void\n * ```\n *\n * - `event` - Various information on the segments that were modified.\n *\n * - `target` - The sequence itself.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -10800,7 +11402,7 @@
             {
               "kind": "MethodSignature",
               "canonicalReference": "fluid-framework!ISharedString#insertMarker:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Inserts a marker at the position.\n *\n * @param pos - The position to insert the marker at\n *\n * @param refType - The reference type of the marker\n *\n * @param props - The properties of the marker\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10884,7 +11486,7 @@
             {
               "kind": "MethodSignature",
               "canonicalReference": "fluid-framework!ISharedString#insertText:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param pos - The position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -10963,7 +11565,7 @@
             {
               "kind": "MethodSignature",
               "canonicalReference": "fluid-framework!ISharedString#posFromRelativePos:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Given a position specified relative to a marker id, lookup the marker and convert the position to a character position.\n *\n * @param relativePos - Id of marker (may be indirect) and whether position is before or after marker.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11035,7 +11637,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "fluid-framework!MatrixSegment:type",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * MatrixSegment is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11070,7 +11672,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fluid-framework!maxCellPosition:var",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * maxCellPosition is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11091,7 +11693,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fluid-framework!maxCol:var",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * maxCol is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11108,7 +11710,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fluid-framework!maxCols:var",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * maxCols is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11129,7 +11731,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fluid-framework!maxRow:var",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * maxRow is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11146,7 +11748,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fluid-framework!maxRows:var",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * maxRows is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11167,7 +11769,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!PaddingSegment:class",
-          "docComment": "",
+          "docComment": "/**\n * An empty segment that occupies 'cachedLength' positions. SparseMatrix uses PaddingSegment to \"pad\" a run of unoccupied cells.\n *\n * @deprecated\n *\n * PaddingSegment is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11692,7 +12294,7 @@
         {
           "kind": "Function",
           "canonicalReference": "fluid-framework!positionToRowCol:function(1)",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * positionToRowCol is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11735,7 +12337,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fluid-framework!rowColToPosition:var",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * positionToRowCol is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -11756,7 +12358,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!RunSegment:class",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * RunSegment is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -12319,7 +12921,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SequenceDeltaEvent:class",
-          "docComment": "/**\n * The event object returned on sequenceDelta events.\n *\n * The properties of this object and its sub-objects represent a point in time state at the time the operation was applied. They will not take into any future modifications performed to the underlying sequence and merge tree.\n *\n * For group ops, each op will get it's own event, and the group op property will be set on the op args.\n *\n * Ops may get multiple events. For instance, an insert-replace will get a remove then an insert event.\n */\n",
+          "docComment": "/**\n * The event object returned on sequenceDelta events.\n *\n * The properties of this object and its sub-objects represent a point in time state at the time the operation was applied. They will not take into consideration any future modifications performed to the underlying sequence and merge tree.\n *\n * For group ops, each op will get it's own event, and the group op property will be set on the op args.\n *\n * Ops may get multiple events. For instance, an insert-replace will get a remove then an insert event.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -12413,7 +13015,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SequenceDeltaEvent#isLocal:member",
-              "docComment": "",
+              "docComment": "/**\n * Whether the event was caused by a locally-made change.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -12660,7 +13262,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SequenceEvent#first:member",
-              "docComment": "",
+              "docComment": "/**\n * The first of the modified ranges.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -12728,7 +13330,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SequenceEvent#last:member",
-              "docComment": "",
+              "docComment": "/**\n * The last of the modified ranges.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -12951,6 +13553,22 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", collab?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", seq?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
                   "text": ", op?: "
                 },
                 {
@@ -12968,7 +13586,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "void"
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertySet",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
                 },
                 {
                   "kind": "Content",
@@ -12978,8 +13605,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
+                "startIndex": 11,
+                "endIndex": 14
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -12992,10 +13619,24 @@
                   }
                 },
                 {
-                  "parameterName": "op",
+                  "parameterName": "collab",
                   "parameterTypeTokenRange": {
                     "startIndex": 4,
-                    "endIndex": 6
+                    "endIndex": 5
+                  }
+                },
+                {
+                  "parameterName": "seq",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 6,
+                    "endIndex": 7
+                  }
+                },
+                {
+                  "parameterName": "op",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 8,
+                    "endIndex": 10
                   }
                 }
               ],
@@ -13264,6 +13905,82 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "fluid-framework!SequenceInterval#modify:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "modify(label: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", start: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", end: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "SequenceInterval",
+                  "canonicalReference": "fluid-framework!SequenceInterval:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "label",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "start",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "end",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                }
+              ],
+              "name": "modify"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "fluid-framework!SequenceInterval#overlaps:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -13394,6 +14111,38 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "properties",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fluid-framework!SequenceInterval#propertyManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "propertyManager: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "MergeTree."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PropertiesManager",
+                  "canonicalReference": "@fluidframework/merge-tree!PropertiesManager:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "propertyManager",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -14739,7 +15488,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SharedNumberSequence:class",
-          "docComment": "/**\n * The SharedNumberSequence holds a sequence of numbers. Each number will be stored at a position within the sequence. See the {@link https://github.com/microsoft/FluidFramework/blob/main/packages/dds/sequence/README.md | sequence readme} for details on working with sequences.\n */\n",
+          "docComment": "/**\n * The SharedNumberSequence holds a sequence of numbers. Each number will be stored at a position within the sequence. See the {@link https://fluidframework.com/docs/data-structures/sequences/ | sequence documentation} for details on working with sequences.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -15373,7 +16122,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SharedObjectSequence:class",
-          "docComment": "/**\n * The SharedObjectSequence holds a sequence of serializable objects. Each object will be stored at a position within the sequence. See the {@link https://github.com/microsoft/FluidFramework/blob/main/packages/dds/sequence/README.md | sequence readme} for details on working with sequences.\n */\n",
+          "docComment": "/**\n * The SharedObjectSequence holds a sequence of serializable objects. Each object will be stored at a position within the sequence. See the {@link https://fluidframework.com/docs/data-structures/sequences/ | sequence documentation} for details on working with sequences.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -16257,7 +17006,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedSegmentSequence#annotateRange:member(1)",
-              "docComment": "/**\n * Annotates the range with the provided properties\n *\n * @param start - The inclusive start postition of the range to annotate\n *\n * @param end - The exclusive end position of the range to annotate\n *\n * @param props - The properties to annotate the range with\n *\n * @param combiningOp - Optional. Specifies how to combine values for the property, such as \"incr\" for increment.\n */\n",
+              "docComment": "/**\n * Annotates the range with the provided properties\n *\n * @param start - The inclusive start position of the range to annotate\n *\n * @param end - The exclusive end position of the range to annotate\n *\n * @param props - The properties to annotate the range with\n *\n * @param combiningOp - Optional. Specifies how to combine values for the property, such as \"incr\" for increment.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -17478,7 +18227,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedSegmentSequence#paste:member(1)",
-              "docComment": "/**\n * Inserts the content of the register.\n *\n * @param pos - The postition to insert the content at.\n *\n * @param register - The name of the register to get the content from\n */\n",
+              "docComment": "/**\n * Inserts the content of the register.\n *\n * @param pos - The position to insert the content at.\n *\n * @param register - The name of the register to get the content from\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18868,7 +19617,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#annotateMarker:member(1)",
-              "docComment": "/**\n * Annotates the marker with the provided properties\n *\n * @param marker - The marker to annotate\n *\n * @param props - The properties to annotate the marker with\n *\n * @param combiningOp - Optional. Specifies how to combine values for the property, such as \"incr\" for increment.\n */\n",
+              "docComment": "/**\n * Annotates the marker with the provided properties.\n *\n * @param marker - The marker to annotate\n *\n * @param props - The properties to annotate the marker with\n *\n * @param combiningOp - Optional. Specifies how to combine values for the property, such as \"incr\" for increment.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18958,7 +19707,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#annotateMarkerNotifyConsensus:member(1)",
-              "docComment": "/**\n * Annotates the marker with the provided properties and calls the callback on concensus.\n *\n * @param marker - The marker to annotate\n *\n * @param props - The properties to annotate the marker with\n *\n * @param consensusCallback - The callback called when consensus is reached\n */\n",
+              "docComment": "/**\n * Annotates the marker with the provided properties and calls the callback on consensus.\n *\n * @param marker - The marker to annotate\n *\n * @param props - The properties to annotate the marker with\n *\n * @param consensusCallback - The callback called when consensus is reached\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19052,7 +19801,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString.create:member(1)",
-              "docComment": "/**\n * Create a new shared string\n *\n * @param runtime - data store runtime the new shared string belongs to\n *\n * @param id - optional name of the shared string\n *\n * @returns newly create shared string (but not attached yet)\n */\n",
+              "docComment": "/**\n * Create a new shared string.\n *\n * @param runtime - data store runtime the new shared string belongs to\n *\n * @param id - optional name of the shared string\n *\n * @returns newly create shared string (but not attached yet)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19278,7 +20027,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#getText:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Retrieve text from the SharedString in string format.\n *\n * @param start - The starting index of the text to retrieve, or 0 if omitted.\n *\n * @param end - The ending index of the text to retrieve, or the end of the string if omitted\n *\n * @returns The requested text content as a string.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19512,7 +20261,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#getTextWithPlaceholders:member(1)",
-              "docComment": "/**\n * Adds spaces for markers and handles, so that position calculations account for them\n */\n",
+              "docComment": "/**\n * Adds spaces for markers and handles, so that position calculations account for them.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19568,7 +20317,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#insertMarker:member(1)",
-              "docComment": "/**\n * Inserts a marker at the postition\n *\n * @param pos - The postition to insert the marker at\n *\n * @param refType - The reference type of the marker\n *\n * @param props - The properties of the marker\n */\n",
+              "docComment": "/**\n * Inserts a marker at the position.\n *\n * @param pos - The position to insert the marker at\n *\n * @param refType - The reference type of the marker\n *\n * @param props - The properties of the marker\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19658,7 +20407,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#insertMarkerRelative:member(1)",
-              "docComment": "/**\n * Inserts a marker at a relative postition\n *\n * @param relativePos1 - The relative postition to insert the marker at\n *\n * @param refType - The reference type of the marker\n *\n * @param props - The properties of the marker\n */\n",
+              "docComment": "/**\n * Inserts a marker at a relative position.\n *\n * @param relativePos1 - The relative position to insert the marker at\n *\n * @param refType - The reference type of the marker\n *\n * @param props - The properties of the marker\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19748,7 +20497,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#insertText:member(1)",
-              "docComment": "/**\n * Inserts the text at the postition\n *\n * @param pos - The postition to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
+              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param pos - The position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19828,7 +20577,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#insertTextRelative:member(1)",
-              "docComment": "/**\n * Inserts the text at the postition\n *\n * @param relativePos1 - The relative postition to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
+              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param relativePos1 - The relative position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -19941,7 +20690,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#removeText:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * Removes the text in the given range.\n *\n * @param start - The inclusive start of the range to remove\n *\n * @param end - The exclusive end of the range to replace\n *\n * @returns the message sent.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20507,7 +21256,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SparseMatrix:class",
-          "docComment": "/**\n * @deprecated\n *\n * - SparseMatrix is an abandoned prototype. Please use SharedMatrix instead.\n */\n",
+          "docComment": "/**\n * @deprecated\n *\n * SparseMatrix is an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -21453,7 +22202,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SparseMatrixFactory:class",
-          "docComment": "/**\n * @deprecated\n *\n * - SparseMatrixFactory/SparseMatrix is an abandoned prototype. Please use SharedMatrix/SharedMatrixFactory instead.\n */\n",
+          "docComment": "/**\n * @deprecated\n *\n * SparseMatrixFactory is an abandoned prototype. Use SharedMatrixFactory instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -21809,7 +22558,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "fluid-framework!SparseMatrixItem:type",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * SparseMatrixItem is part of an abandoned prototype. Use SharedMatrix instead.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -21968,7 +22717,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "boolean"
+                  "text": "any"
                 },
                 {
                   "kind": "Content",
