@@ -15,6 +15,7 @@ import {
     ApiPackage,
     ApiParameterListMixin,
     ApiReleaseTagMixin,
+    ApiTypeAlias,
     ApiVariable,
     Excerpt,
     ExcerptTokenKind,
@@ -59,6 +60,7 @@ import { unified } from "unified";
 import { DocumenterConfig } from "./DocumenterConfig.js";
 import { callout } from "./nodes.js";
 import { getSafeFilenameForName, groupBy, groupByApiKind, isAllowedPackage } from "./util.js";
+import { squeezeParagraphs } from "mdast-squeeze-paragraphs";
 
 
 
@@ -183,12 +185,12 @@ export class HugoDocumenter {
             throw new Error(`Expected a Model, got a: ${this._apiModel.kind}`);
         }
         for (const pkg of this._apiModel.members) {
-            logMembers(pkg, 0);
+            logMembers(pkg, 0, this._outputPath);
         }
     }
 }
 
-function logMembers(model: ApiItem, level: number) {
+function logMembers(model: ApiItem, level: number, outputPath: string) {
     const indent = level.toString().repeat(level);
     //((" " as any) * level) as unknown as string;
     console.log(
@@ -198,7 +200,7 @@ function logMembers(model: ApiItem, level: number) {
     switch (model.kind) {
         case ApiItemKind.Package:
             console.log(`Writing package: ${model.displayName}`);
-            createPackageDocs(model);
+            createPackageDocs(model, outputPath);
             break;
         case ApiItemKind.Model:
         default:
@@ -210,7 +212,7 @@ function logMembers(model: ApiItem, level: number) {
     // }
 }
 
-function createPackageDocs(pkg: ApiItem): void {
+function createPackageDocs(pkg: ApiItem, outputPath: string): void {
     if (pkg.kind !== ApiItemKind.Package) {
         throw new Error(`Expected a Package, got a: ${pkg.kind}`);
     }
@@ -237,6 +239,10 @@ function createPackageDocs(pkg: ApiItem): void {
     //     .filter(item => item.kind === ApiItemKind.Variable)
     //     .map(item => item as ApiVariable);
 
+    const classes = entrypoint.members.filter(i => i.kind === ApiItemKind.Class).map(i => i as ApiClass);
+    const interfaces = entrypoint.members.filter(i => i.kind === ApiItemKind.Interface).map(i => i as ApiInterface);
+    const typeAliases = entrypoint.members.filter(i => i.kind === ApiItemKind.TypeAlias).map(i => i as ApiTypeAlias);
+
     const groups = groupBy(entrypoint.members, item => item.kind);
     const variables = groups.get(ApiItemKind.Variable)?.map(i => i as ApiVariable);
     const functions = groups.get(ApiItemKind.Function)?.map(i => i as ApiFunction);
@@ -246,23 +252,42 @@ function createPackageDocs(pkg: ApiItem): void {
         tree.children.push(md.heading(2, [md.text("Variables")]) as Heading);
         tree.children.push(GenerateTable(variables));
 
-        variables.forEach(variable => tree.children.push(getSectionForItem(variable, 3)));
+        variables.forEach(variable => tree.children.push(GenerateSection(variable, 3)));
 
         // for (const variable of variables) {
         //     tree.children.push(getSectionForItem(variable, 2));
         // }
     }
-    if (functions) {
-        tree.children.push(md.heading(2, [md.text("Functions")]) as Heading);
-        tree.children.push(GenerateTable(functions));
+
+    if (interfaces) {
+        tree.children.push(md.heading(2, [md.text("Interfaces")]) as Heading);
+        tree.children.push(GenerateTable(interfaces));
     }
+
+    if (classes) {
+        tree.children.push(md.heading(2, [md.text("Classes")]) as Heading);
+        tree.children.push(GenerateTable(classes));
+    }
+
+    if (typeAliases) {
+        tree.children.push(md.heading(2, [md.text("Type aliases")]) as Heading);
+        tree.children.push(GenerateTable(typeAliases));
+
+        typeAliases.forEach(alias => tree.children.push(GenerateSection(alias, 3)));
+    }
+
     if (enums) {
         tree.children.push(md.paragraph([md.heading(2, [md.text("Enums")])]) as Paragraph);
         tree.children.push(GenerateTable(enums));
     }
 
+    if (functions) {
+        tree.children.push(md.heading(2, [md.text("Functions")]) as Heading);
+        tree.children.push(GenerateTable(functions));
+    }
+
     // console.log(tree);
-    const toMd = toMarkdown(compact(tree), {
+    const toMd = toMarkdown(squeezeParagraphs(compact(tree)), {
         bullet: "-",
         listItemIndent: "one",
         incrementListMarker: false,
@@ -277,7 +302,7 @@ function createPackageDocs(pkg: ApiItem): void {
     });
     // console.log(toMarkdown(fromMd, { extensions: [gfmToMarkdown(), frontmatterToMarkdown(["toml", "yaml"])] }));
     console.log(toMd);
-    FileSystem.writeFile(path.join("api-md", PackageName.getUnscopedName(pkg.displayName) + ".md"), toMd);
+    FileSystem.writeFile(path.join(outputPath, PackageName.getUnscopedName(pkg.displayName) + ".md"), toMd);
     // console.log(JSON.stringify(fromMd, undefined, 2));
 
     // for (const member of entrypoint.members) {
@@ -389,7 +414,15 @@ function getNotes(apiItem: ApiItem): Paragraph {
     return md.paragraph(nodes) as Paragraph;
 }
 
+function getSignature(item: ApiDeclaredItem): Paragraph {
+    const nodes: Content[] = [];
 
+    nodes.push(md.strong(md.text("Signature:")) as Strong);
+    nodes.push(md.text("\n\n") as Text);
+
+    nodes.push(md.code("typescript", item.getExcerptWithModifiers()) as Code);
+    return md.paragraph(nodes) as Paragraph;
+}
 
 function _getFilenameForApiItem(apiItem: ApiItem): string {
     if (apiItem.kind === ApiItemKind.Model) {
@@ -508,10 +541,27 @@ export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
     }
 }
 
-function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable)[]): Table {
+
+function GenerateSection(item: ApiVariable | ApiTypeAlias, headingLevel = 2): Paragraph {
+    const nodes: Content[] = [md.heading(headingLevel, md.text(item.name)) as Heading];
+    nodes.push(md.text("\n\n") as Text);
+
+    if (item.tsdocComment) {
+        const depItem = getDeprecatedCallout(item as ApiDocumentedItem);
+        nodes.push(depItem);
+        nodes.push(getSummary(item));
+        nodes.push(getRemarks(item));
+    }
+
+    nodes.push(getSignature(item as ApiDeclaredItem));
+
+    return md.paragraph(nodes) as Paragraph;
+}
+
+function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable | ApiClass | ApiInterface | ApiTypeAlias)[]): Paragraph {
     const table = md.table([null], []) as Table;
 
-    let kind: ApiItemKind = ApiItemKind.Variable;
+    let kind: ApiItemKind = ApiItemKind.Enum;
     let typeExcerpt = (item: ApiItem) => "";
 
     if (items.length > 0) {
@@ -545,19 +595,7 @@ function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable)[]): Table {
         ]) as TableRow);
     }
 
-    return table;
-}
+    const classDecoration = md.text(`\n{.table .${kind.toLowerCase()}-table}\n`)
 
-function getSectionForItem(item: ApiVariable, headingLevel = 2): Paragraph {
-    const nodes: Content[] = [md.heading(headingLevel, md.text(item.name)) as Heading];
-    nodes.push(md.text("\n\n") as Text);
-
-    if (item.tsdocComment) {
-        const depItem = getDeprecatedCallout(item as ApiDocumentedItem);
-        nodes.push(depItem);
-        nodes.push(getSummary(item));
-        nodes.push(getRemarks(item));
-    }
-
-    return md.paragraph(nodes) as Paragraph;
+    return md.paragraph([table, classDecoration]) as Paragraph;
 }

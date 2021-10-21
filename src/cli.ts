@@ -38,6 +38,8 @@ const parser = yargs(hideBin(process.argv))
     FileSystem.exists(argv.config);
     const docConfig = DocumenterConfig.loadFile(argv.config);
 
+    console.log(`output path: ${argv.output}`);
+
     const documenter = new HugoDocumenter({
         apiModel: new ApiModel(),
         inputPath: argv.input,

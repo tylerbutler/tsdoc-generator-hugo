@@ -18,7 +18,7 @@
     "clean": "rimraf -r dist/** bin/**",
     "lint": "eslint --format stylish .",
     "release": "echo \"NYI\"",
-    "run": "node --require=suppress-experimental --loader ts-node/esm ./src/cli.ts",
+    "run": "node --require=suppress-experimental --loader ts-node/esm ./src/cli.ts --output \"E:\\code\\FluidFramework\\docs\\content\\docs\\apis\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "chalk": "^4.1.2",
     "js-yaml": "^4.1.0",
     "mdast-builder": "~1.1.1",
+    "mdast-squeeze-paragraphs": "^5.2.0",
     "mdast-util-compact": "^4.1.0",
     "mdast-util-from-markdown": "^1.0.4",
     "mdast-util-frontmatter": "^1.0.0",
