@@ -426,7 +426,7 @@ function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
     return './' + _getFilenameForApiItem(apiItem);
 }
 
-export function plainTextToMdast(docNode: DocNode): Content[] {
+export function plainTextToMdast(docNode: DocPlainText): Content[] {
     // const content:Content[] = [];
     const docPlainText = docNode as DocPlainText;
     // console.log(chalk.bgBlue(docPlainText.text));
@@ -437,14 +437,14 @@ export function plainTextToMdast(docNode: DocNode): Content[] {
 export function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
     const res = nodes
         // .filter(n=>docNodeToMdast(n) !== undefined)
-        .forEach((n) => {
+        .flatMap((n) => {
             const mdast = docNodeToMdast(n);
             if (mdast !== undefined) {
                 return mdast;
             }
             else return [] as Content[];
         });
-
+    return res;
 }
 
 export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
@@ -459,23 +459,23 @@ export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
             break;
         case DocNodeKind.CodeSpan:
             const code = docNode as DocCodeSpan;
-            return md.inlineCode(code.code) as InlineCode;
+            return [md.inlineCode(code.code) as InlineCode];
         case DocNodeKind.Comment:
             const comment = docNode as DocComment;
             break;
         case DocNodeKind.ErrorText:
             const docErrorText = docNode as DocErrorText;
-            return md.text(docErrorText.text) as Text;
+            return [md.text(docErrorText.text) as Text];
         case DocNodeKind.EscapedText:
             const docEscapedText = docNode as DocEscapedText;
-            return md.text(docEscapedText.decodedText) as Text;
+            return [md.text(docEscapedText.decodedText) as Text];
         case DocNodeKind.FencedCode:
             const docFencedCode = docNode as DocFencedCode;
-            return md.code(docFencedCode.language, docFencedCode.code) as Code;
+            return [md.code(docFencedCode.language, docFencedCode.code) as Code];
         case DocNodeKind.HtmlStartTag:
         case DocNodeKind.HtmlEndTag:
             const docHtmlTag = docNode as DocHtmlStartTag | DocHtmlEndTag;
-            return md.html(docHtmlTag.emitAsHtml()) as HTML;
+            return [md.html(docHtmlTag.emitAsHtml()) as HTML];
         case DocNodeKind.InlineTag:
             break;
         case DocNodeKind.LinkTag:
@@ -485,23 +485,24 @@ export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
             } else if (docLinkTag.urlDestination) {
                 const linkText: string =
                     docLinkTag.linkText !== undefined ? docLinkTag.linkText : docLinkTag.urlDestination;
-                return md.link(docLinkTag.urlDestination, undefined, md.text(linkText)) as Link;
+                return [md.link(docLinkTag.urlDestination, undefined, md.text(linkText)) as Link];
             } else if (docLinkTag.linkText) {
-                return md.text(docLinkTag.linkText) as Text;
+                return [md.text(docLinkTag.linkText) as Text];
             }
         case DocNodeKind.Paragraph:
             const docParagraph = docNode as DocParagraph;
             const trimmedParagraph = DocNodeTransforms.trimSpacesInParagraph(docParagraph);
             const children: Content[] = docNodesToMdast(trimmedParagraph.nodes);
-            return md.paragraph(children) as Paragraph;
+            return [md.paragraph(children) as Paragraph];
         case DocNodeKind.PlainText:
-            return plainTextToMdast(docNode);
+            // return [md.text((docNode as DocPlainText).text) as Text];
+            return plainTextToMdast(docNode as DocPlainText);
         case DocNodeKind.Section:
             const docSection: DocSection = docNode as DocSection;
             const sectionChildren: Content[] = docNodesToMdast(docSection.nodes);
-            return md.paragraph(sectionChildren) as Paragraph;
+            return [md.paragraph(sectionChildren) as Paragraph];
         case DocNodeKind.SoftBreak:
-            return md.brk as Break;
+            return [md.brk as Break];
         default:
             throw new Error(`Unsupported DocNodeKind kind: ${docNode.kind}`);
     }
