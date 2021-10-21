@@ -5,6 +5,8 @@ import {
     ApiClass,
     ApiDeclaredItem,
     ApiDocumentedItem,
+    ApiEnum,
+    ApiFunction,
     ApiInterface,
     ApiItem,
     ApiItemKind,
@@ -13,11 +15,14 @@ import {
     ApiPackage,
     ApiParameterListMixin,
     ApiReleaseTagMixin,
+    ApiVariable,
     Excerpt,
     ExcerptTokenKind,
     IResolveDeclarationReferenceResult,
     ReleaseTag
 } from "@microsoft/api-extractor-model";
+import { gfm } from "micromark-extension-gfm";
+import { compact } from "mdast-util-compact";
 import {
     DocBlock,
     DocBlockTag,
@@ -38,13 +43,13 @@ import {
     StandardTags,
     StringBuilder
 } from "@microsoft/tsdoc";
-import { FileSystem as fs, PackageName } from "@rushstack/node-core-library";
+import { ConsoleTerminalProvider, FileSystem, FileSystem as fs, PackageName } from "@rushstack/node-core-library";
 import chalk from "chalk";
-import type { Break, Code, Content, Heading, HTML, InlineCode, Link, PhrasingContent, Root, Text } from "mdast";
+import type { Break, Code, Content, Heading, HTML, InlineCode, Link, Paragraph, PhrasingContent, Root, Strong, Table, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
-import { Paragraph } from "mdast-util-from-markdown/lib";
-import { frontmatterToMarkdown } from "mdast-util-frontmatter";
-import { gfmToMarkdown } from "mdast-util-gfm";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { frontmatterToMarkdown, frontmatterFromMarkdown } from "mdast-util-frontmatter";
+import { gfmToMarkdown, gfmFromMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { toString } from "mdast-util-to-string";
 import path from "path";
@@ -53,10 +58,15 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { DocumenterConfig } from "./DocumenterConfig.js";
 import { callout } from "./nodes.js";
-import { getSafeFilenameForName, isAllowedPackage } from "./util.js";
+import { getSafeFilenameForName, groupBy, groupByApiKind, isAllowedPackage } from "./util.js";
 
 
 
+// export type InlineKinds = ApiItemKind.Variable | ApiItemKind.
+export const PageKind = (item: ApiItem) => {
+    const isPage = [ApiItemKind.Class, ApiItemKind.Interface].includes(item.kind);
+    return isPage ? "Page" : "Inline";
+}
 export class FrontMatter {
     public title: string = "";
     public kind: ApiItemKind = ApiItemKind.None;
@@ -84,42 +94,42 @@ export interface HugoDocumenterOptions {
     documenterConfig: DocumenterConfig;
 }
 
-const mdRoot = md.root([
-    md.heading(2, md.text("Begin")),
-    md.paragraph([
-        md.paragraph(md.text("these are the starting instructions")),
-        md.brk,
-        md.brk,
-        md.list("unordered", [
-            md.listItem(md.text("one")),
-            md.listItem(md.text("two")),
-            md.listItem(md.text("three"))
-        ])
-    ])
-]) as Root;
+// const mdRoot = md.root([
+//     md.heading(2, md.text("Begin")),
+//     md.paragraph([
+//         md.paragraph(md.text("these are the starting instructions")),
+//         md.brk,
+//         md.brk,
+//         md.list("unordered", [
+//             md.listItem(md.text("one")),
+//             md.listItem(md.text("two")),
+//             md.listItem(md.text("three"))
+//         ])
+//     ])
+// ]) as Root;
 
-const tree: Root = {
-    type: "root",
-    children: [
-        {
-            type: "blockquote",
-            children: [
-                { type: "thematicBreak" },
-                {
-                    type: "paragraph",
-                    children: [
-                        { type: "text", value: "- a\nb !" },
-                        {
-                            type: "link",
-                            url: "example.com",
-                            children: [{ type: "text", value: "d" }]
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-};
+// const tree: Root = {
+//     type: "root",
+//     children: [
+//         {
+//             type: "blockquote",
+//             children: [
+//                 { type: "thematicBreak" },
+//                 {
+//                     type: "paragraph",
+//                     children: [
+//                         { type: "text", value: "- a\nb !" },
+//                         {
+//                             type: "link",
+//                             url: "example.com",
+//                             children: [{ type: "text", value: "d" }]
+//                         }
+//                     ]
+//                 }
+//             ]
+//         }
+//     ]
+// };
 
 // const markdown: string = toMarkdown(tree);
 // console.log(markdown);
@@ -169,491 +179,257 @@ export class HugoDocumenter {
         fs.ensureEmptyFolder(this._outputPath);
 
         this._loadApiFiles(this._inputPath, this._apiModel);
-
-        this._writeApiItemPage(this._apiModel);
-    }
-
-    protected _writeApiItemPage(apiItem: ApiItem): void {
-        // const configuration: TSDocConfiguration = this._tsdocConfiguration;
-        // const output: DocSection = new DocSection({ configuration: this._tsdocConfiguration });
-        // const output = builder.root();
-
-        if (this._shouldHaveStandalonePage(apiItem)) {
-            this._frontmatter = new FrontMatter();
-            this._currentApiItemPage = apiItem;
+        if (this._apiModel.kind !== ApiItemKind.Model) {
+            throw new Error(`Expected a Model, got a: ${this._apiModel.kind}`);
         }
-
-        const tree = md.root() as Root;
-
-        const breadcrumb = this.getBreadcrumb(apiItem);
-        tree.children.push(breadcrumb);
-
-        const heading = this.getHeading(apiItem);
-        if (heading) {
-            tree.children.push(heading);
+        for (const pkg of this._apiModel.members) {
+            logMembers(pkg, 0);
         }
-
-        const betaWarning = this.getBetaWarning(apiItem);
-        if (betaWarning) {
-            tree.children.push(betaWarning);
-        }
-
-        let summarySection: Paragraph | undefined;
-        if (apiItem instanceof ApiDocumentedItem) {
-            summarySection = this.getSummarySection(apiItem);
-        }
-        if (summarySection) {
-            tree.children.push(summarySection);
-        }
-
-        let codeExcerpt: Paragraph;
-        if (apiItem instanceof ApiDeclaredItem) {
-            codeExcerpt = md.paragraph(...this.getCodeExcerpt(apiItem as ApiDeclaredItem)) as Paragraph;
-            tree.children.push(codeExcerpt);
-        }
-
-        let appendRemarks: boolean = true;
-        let remarks: Paragraph;
-        switch (apiItem.kind) {
-            case ApiItemKind.Class:
-            case ApiItemKind.Interface:
-            case ApiItemKind.Namespace:
-            case ApiItemKind.Package:
-                remarks = this.getRemarks(apiItem);
-                tree.children.push(remarks);
-                appendRemarks = false;
-                break;
-        }
-
-        switch (apiItem.kind) {
-            case ApiItemKind.Class:
-                // this._writeClassTables(output, apiItem as ApiClass);
-                break;
-            case ApiItemKind.Enum:
-                // this._writeEnumTables(output, apiItem as ApiEnum);
-                break;
-            case ApiItemKind.Interface:
-                // this._writeInterfaceTables(output, apiItem as ApiInterface);
-                break;
-            case ApiItemKind.Constructor:
-            case ApiItemKind.ConstructSignature:
-            case ApiItemKind.Method:
-            case ApiItemKind.MethodSignature:
-            case ApiItemKind.Function:
-                // this._writeParameterTables(output, apiItem as ApiParameterListMixin);
-                // this._writeThrowsSection(output, apiItem);
-                break;
-            case ApiItemKind.Namespace:
-                // this._writePackageOrNamespaceTables(output, apiItem as ApiNamespace);
-                break;
-            case ApiItemKind.Model:
-                // this._writeModelTable(output, apiItem as ApiModel);
-                break;
-            case ApiItemKind.Package:
-                // this._writePackageOrNamespaceTables(output, apiItem as ApiPackage);
-                break;
-            case ApiItemKind.Property:
-            case ApiItemKind.PropertySignature:
-                break;
-            case ApiItemKind.TypeAlias:
-                break;
-            case ApiItemKind.Variable:
-                break;
-            default:
-                throw new Error('Unsupported API item kind: ' + apiItem.kind);
-        }
-
-        if (appendRemarks) {
-            remarks = this.getRemarks(apiItem);
-            tree.children.push(remarks);
-        }
-
-        // we only generate top level package pages (which will generate class and interface subpages)
-        const pkg: ApiPackage | undefined = apiItem.getAssociatedPackage();
-        if (!pkg || !isAllowedPackage(pkg, this._documenterConfig)) {
-            if (this._documenterConfig && this._documenterConfig.logLevel === 'verbose') {
-                console.log(`skipping ${apiItem.getScopedNameWithinPackage()}`);
-                if (pkg) {
-                    console.log(`\t${pkg.name} package isn't in the allowed list`);
-                }
-            }
-            return;
-        }
-
-        // temp hack to reduce the size of the generated content
-        if (!this._shouldHaveStandalonePage(apiItem)) {
-            return;
-        }
-
-        // const log = processor.stringify();
-
-        // console.log(toMarkdown(mdRoot));
-        console.log(tree);
-        console.log(toMarkdown(tree, { extensions: [gfmToMarkdown(), frontmatterToMarkdown(["toml", "yaml"])] }));
-
-    }
-
-    protected getBreadcrumb(apiItem: ApiItem): Paragraph {
-        const output = md.paragraph([
-            md.link(this._getLinkFilenameForApiItem(apiItem), "Home", [md.text("Home")]),
-            md.text(" > "),
-        ]) as Paragraph;
-
-        for (const hierarchyItem of apiItem.getHierarchy()) {
-            console.log(chalk.red(`hierarchyItem: ${hierarchyItem.kind} ${hierarchyItem}`));
-            switch (hierarchyItem.kind) {
-                case ApiItemKind.Model:
-                case ApiItemKind.EntryPoint:
-                    // We don't show the model as part of the breadcrumb because it is the root-level container.
-                    // We don't show the entry point because today API Extractor doesn"t support multiple entry points;
-                    // this may change in the future.
-                    break;
-                default:
-                    output.children.push(md.link(this._getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName, [md.text(hierarchyItem.displayName)]) as Link);
-            }
-        }
-        return output;
-    }
-
-    protected getHeading(apiItem: ApiItem): Heading | undefined {
-        const scopedName: string = apiItem.getScopedNameWithinPackage();
-        console.log(scopedName);
-        let output: Heading;
-
-        switch (apiItem.kind) {
-            case ApiItemKind.Package:
-                console.log(`Writing ${apiItem.displayName} package`);
-                // const unscopedPackageName: string = PackageName.getUnscopedName(apiItem.displayName);
-                // output.appendNode(new DocHeading({ configuration, title: `${unscopedPackageName} package` }));
-                break;
-            case ApiItemKind.Model:
-                output = { type: "heading", depth: 1, children: [{ type: "text", value: "API Reference" }] }
-                //fromMarkdown(`# API Reference`) as Heading;
-                return output;
-            case ApiItemKind.Class:
-                //output.appendNode(new DocHeading({ configuration, title: `${scopedName} class` }));
-                break;
-            case ApiItemKind.Enum:
-                output = { type: "heading", depth: 2, children: [{ type: "text", value: `${scopedName} enum {${scopedName}}` }] }
-                return output;
-            case ApiItemKind.Interface:
-                //output.appendNode(new DocHeading({ configuration, title: `${scopedName} interface` }));
-                break;
-            case ApiItemKind.Constructor:
-            case ApiItemKind.ConstructSignature:
-                output = { type: "heading", depth: 3, children: [{ type: "text", value: `${scopedName} {${scopedName}}` }] }
-                return output;
-            case ApiItemKind.Namespace:
-                output = { type: "heading", depth: 2, children: [{ type: "text", value: `${scopedName} namespace {${scopedName}}` }] }
-                return output;
-            case ApiItemKind.Method:
-            case ApiItemKind.MethodSignature:
-            case ApiItemKind.Function:
-            case ApiItemKind.Property:
-            case ApiItemKind.PropertySignature:
-            case ApiItemKind.TypeAlias:
-            case ApiItemKind.Variable:
-                output = { type: "heading", depth: 3, children: [{ type: "text", value: `${apiItem.displayName} {${apiItem.displayName}}` }] }
-                return output;
-            default:
-                throw new Error('Unsupported API item kind: ' + apiItem.kind);
-        }
-        return undefined;
-    }
-
-    protected getBetaWarning(apiItem: ApiItem): Content | undefined {
-        if (ApiReleaseTagMixin.isBaseClassOf(apiItem)) {
-            if (apiItem.releaseTag === ReleaseTag.Beta) {
-                return md.paragraph([
-                    md.text("Warning! This is a beta!")
-                ]) as Paragraph;
-            }
-        }
-        return undefined;
-    }
-
-    protected getSummarySection(apiItem: ApiDocumentedItem): Paragraph | undefined {
-        const tsdocComment: DocComment | undefined = apiItem.tsdocComment;
-
-        if (tsdocComment) {
-            if (tsdocComment.deprecatedBlock) {
-                if (true && this._documenterConfig && this._documenterConfig.logLevel === 'verbose') {
-                    for (const node of tsdocComment.deprecatedBlock.content.nodes) {
-                        console.log(`NODE: ${node.kind}, CHILDREN: [${node.getChildNodes().map(v => v.kind)}]`);
-                    }
-                }
-
-                // for(const node of tsdocComment.deprecatedBlock.content.nodes) {
-                //     node.kind === DocNodeKind.
-                // }
-                const output = callout("warning", "Deprecated", [
-                    // TODO: finish this
-                ]);
-                return output as Paragraph;
-            }
-
-            // this._appendSection(output, tsdocComment.summarySection);
-        }
-    }
-
-    protected getCodeExcerpt(apiItem: ApiDeclaredItem): Content[] {
-        const nodes: Content[] = [];
-        if (apiItem.excerpt.text.length > 0) {
-            nodes.push(md.paragraph(md.strong([md.text("Signature:")])) as Paragraph);
-            nodes.push(md.code("typescript", apiItem.getExcerptWithModifiers()) as Code)
-        }
-        nodes.push(...this.getTypeHeritage(apiItem));
-        return nodes;
-    }
-
-    protected getTypeHeritage(apiItem: ApiDeclaredItem): Content[] {
-        const nodes: Content[] = [];
-
-        if (apiItem instanceof ApiClass) {
-            if (apiItem.extendsType) {
-                const extendsParagraph = md.paragraph(md.strong([md.text("Extends: "), ...this._appendExcerptWithHyperlinks(apiItem.extendsType.excerpt)])) as Paragraph;
-                nodes.push(extendsParagraph);
-            }
-            if (apiItem.implementsTypes.length > 0) {
-                const extendsParagraph = md.paragraph(md.strong([md.text("Implements: ")])) as Paragraph;
-
-                let needsComma: boolean = false;
-                for (const implementsType of apiItem.implementsTypes) {
-                    if (needsComma) {
-                        extendsParagraph.children.push(md.text(", ") as Text);
-                    }
-                    nodes.push(...this._appendExcerptWithHyperlinks(implementsType.excerpt));
-                    needsComma = true;
-                    nodes.push(extendsParagraph);
-                }
-            }
-            if (apiItem.typeParameters.length > 0) {
-                console.log(`HERITAGE GENERIC: ${JSON.stringify(apiItem.typeParameters.map(v => v.name))}`);
-                const typeParamParagraph = md.paragraph(md.strong(md.text("Type parameters: "))) as Paragraph;
-                nodes.push(typeParamParagraph);
-
-                for (const typeParam of apiItem.typeParameters) {
-                    const paragraph = md.paragraph([
-                        md.strong(md.text(typeParam.name)),
-                        md.text(` -- `)
-                    ]) as Paragraph;
-                    if (typeParam.tsdocTypeParamBlock) {
-                        console.log(`Appending section for ${typeParam.name}`);
-
-                        // TODO: figure out how to do this
-                        // this._appendSection(typeParamParagraph, typeParam.tsdocTypeParamBlock.content.);
-                    }
-
-                    nodes.push(paragraph);
-                }
-            }
-        }
-
-        if (apiItem instanceof ApiInterface) {
-            if (apiItem.extendsTypes.length > 0) {
-                const extendsParagraph = md.paragraph(md.strong(md.text("Extends: "))) as Paragraph;
-
-                let needsComma: boolean = false;
-                for (const extendsType of apiItem.extendsTypes) {
-                    if (needsComma) {
-                        extendsParagraph.children.push(md.text(", ") as Text);
-                    }
-                    nodes.push(...this._appendExcerptWithHyperlinks(extendsType.excerpt));
-                    needsComma = true;
-                    nodes.push(extendsParagraph);
-                }
-            }
-        }
-
-        return nodes;
-    }
-
-    protected getRemarks(apiItem: ApiItem): Paragraph {
-        const nodes: Content[] = [];
-        if (apiItem instanceof ApiDocumentedItem) {
-            const tsdocComment: DocComment | undefined = apiItem.tsdocComment;
-
-            if (tsdocComment) {
-                // Write the @remarks block
-                if (tsdocComment.remarksBlock) {
-                    nodes.push(md.heading(3, md.text("Remarks")) as Heading)
-                    nodes.push(...docNodesToMdast(tsdocComment.remarksBlock.content.nodes));
-                }
-
-                // Write the @example blocks
-                const exampleBlocks: DocBlock[] = tsdocComment.customBlocks.filter(
-                    (x) => x.blockTag.tagNameWithUpperCase === StandardTags.example.tagNameWithUpperCase
-                );
-
-                let exampleNumber: number = 1;
-                for (const exampleBlock of exampleBlocks) {
-                    const heading: string = exampleBlocks.length > 1 ? `Example ${exampleNumber}` : 'Example';
-
-                    nodes.push(md.heading(4, md.text(heading)) as Heading);
-                    nodes.push(...docNodesToMdast(exampleBlock.content.nodes));
-
-                    ++exampleNumber;
-                }
-            }
-        }
-        return md.paragraph(nodes) as Paragraph;
-    }
-
-    private _appendExcerptWithHyperlinks(excerpt: Excerpt): PhrasingContent[] {
-        const nodes: PhrasingContent[] = [];
-
-        for (const token of excerpt.spannedTokens) {
-            // Markdown doesn't provide a standardized syntax for hyperlinks inside code spans, so we will render
-            // the type expression as DocPlainText.  Instead of creating multiple DocParagraphs, we can simply
-            // discard any newlines and let the renderer do normal word-wrapping.
-            const unwrappedTokenText: string = token.text.replace(/[\r\n]+/g, ' ');
-
-            // If it's hyperlinkable, then append a DocLinkTag
-            if (token.kind === ExcerptTokenKind.Reference && token.canonicalReference) {
-                const apiItemResult: IResolveDeclarationReferenceResult = this._apiModel.resolveDeclarationReference(
-                    token.canonicalReference,
-                    undefined
-                );
-
-                if (apiItemResult.resolvedApiItem) {
-                    nodes.push(md.link(
-                        this._getLinkFilenameForApiItem(apiItemResult.resolvedApiItem),
-                        unwrappedTokenText,
-                        [md.text(unwrappedTokenText)]
-                    ) as Link);
-                    continue;
-                }
-            }
-        }
-        return nodes;
-    }
-
-    protected getFrontMatter(item: ApiItem): void {
-
-        this._frontmatter.kind = item.kind;
-        this._frontmatter.title = item.displayName.replace(/"/g, '').replace(/!/g, '');
-        let apiMembers: ReadonlyArray<ApiItem> = item.members;
-        // const mdEmitter = this._markdownEmitter;
-
-        const extractSummary = (docComment: DocComment): string => {
-            // const tmpStrBuilder: StringBuilder = new StringBuilder();
-            const summary = docNodeToMdast(docComment!.summarySection);
-            if (summary) {
-                return toString(summary);
-            }
-            return "";
-        }
-        switch (item.kind) {
-            case ApiItemKind.Class:
-                const classItem: ApiClass = item as ApiClass;
-                if (classItem.tsdocComment) {
-                    this._frontmatter.summary = extractSummary(classItem.tsdocComment);
-                }
-                this._frontmatter.title += " Class"
-                break;
-            case ApiItemKind.Interface:
-                this._frontmatter.title += " Interface"
-                const interfaceItem: ApiInterface = item as ApiInterface;
-                if (interfaceItem.tsdocComment) {
-                    this._frontmatter.summary = extractSummary(interfaceItem.tsdocComment);
-                }
-                break
-            case ApiItemKind.Package:
-                this._frontmatter.title += " Package"
-                apiMembers =
-                    item.kind === ApiItemKind.Package
-                        ? (item as ApiPackage).entryPoints[0].members
-                        : (item as ApiNamespace).members;
-                const pkgItem: ApiPackage = item as ApiPackage;
-                if (pkgItem.tsdocComment) {
-                    this._frontmatter.summary = extractSummary(pkgItem.tsdocComment);
-                }
-                break
-            default:
-                break;
-        }
-
-        this._frontmatter.members = new Map<string, Map<string, string>>();
-        apiMembers.forEach(element => {
-            if (element.displayName === "") { return }
-            if (!this._frontmatter.members.get(element.kind)) {
-                this._frontmatter.members.set(element.kind, new Map<string, string>());
-            }
-            this._frontmatter.members.get(
-                element.kind
-            )?.set(
-                element.displayName,
-                this._getLinkFilenameForApiItem(element)
-            );
-        });
-
-        const pkg: ApiPackage | undefined = item.getAssociatedPackage();
-        if (pkg) {
-            this._frontmatter.package = pkg.name.replace(/"/g, '').replace(/!/g, '');
-            this._frontmatter.unscopedPackageName = PackageName.getUnscopedName(pkg.name);
-        } else {
-            this._frontmatter.package = "undefined";
-        }
-        // this._frontmatter.members = this._frontmatter.members;
-
-
-        // stringBuilder.append(JSON.stringify(this._frontmatter));
-        // stringBuilder.append(
-        //     '\n\n[//]: # (Do not edit this file. It is automatically generated by API Documenter.)\n\n'
-        // );
-
-    }
-
-    protected _getFilenameForApiItem(apiItem: ApiItem): string {
-        if (apiItem.kind === ApiItemKind.Model) {
-            return 'index.md';
-        }
-
-        let baseName = '';
-        for (const hierarchyItem of apiItem.getHierarchy()) {
-            // For overloaded methods, add a suffix such as "MyClass.myMethod_2".
-            let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);
-            if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
-                // eslint-disable-next-line unicorn/no-lonely-if
-                if (hierarchyItem.overloadIndex > 1) {
-                    // Subtract one for compatibility with earlier releases of API Documenter.
-                    // (This will get revamped when we fix GitHub issue #1308)
-                    qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
-                }
-            }
-
-            switch (hierarchyItem.kind) {
-                case ApiItemKind.EntryPoint:
-                    break;
-                case ApiItemKind.Package:
-                    baseName = getSafeFilenameForName(PackageName.getUnscopedName(hierarchyItem.displayName));
-                    break;
-                default:
-                    baseName += '.' + qualifiedName;
-            }
-        }
-        return baseName + '.md';
-    }
-
-    protected _getLinkFilenameForApiItem(apiItem: ApiItem): string {
-        return './' + this._getFilenameForApiItem(apiItem);
-    }
-
-    protected _shouldHaveStandalonePage(apiItem: ApiItem): boolean {
-        return [
-            // These kinds _should_ have standalone pages.
-            ApiItemKind.Package,
-            ApiItemKind.Class,
-            ApiItemKind.Interface
-        ].includes(apiItem.kind);
     }
 }
 
-function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
+function logMembers(model: ApiItem, level: number) {
+    const indent = level.toString().repeat(level);
+    //((" " as any) * level) as unknown as string;
+    console.log(
+        chalk.blueBright(`${indent}${model.kind} - ${model.displayName} - ${model.members.length} members`)
+    );
+
+    switch (model.kind) {
+        case ApiItemKind.Package:
+            console.log(`Writing package: ${model.displayName}`);
+            createPackageDocs(model);
+            break;
+        case ApiItemKind.Model:
+        default:
+            throw new Error(`Cannot handle ApiItemKind.${model.kind}`);
+    }
+
+    // for (const member of model.members) {
+    //     logMembers(member, level + 1);
+    // }
+}
+
+function createPackageDocs(pkg: ApiItem): void {
+    if (pkg.kind !== ApiItemKind.Package) {
+        throw new Error(`Expected a Package, got a: ${pkg.kind}`);
+    }
+
+    const tree = md.root() as Root;
+
+    const entrypoint = pkg.members[0];
+    console.log(chalk.blue(`Found package entrypoint -- ${entrypoint.members.length} members`));
+    tree.children.push(getBreadcrumb(entrypoint));
+    tree.children.push(md.heading(1, md.text(pkg.displayName)) as Heading);
+    tree.children.push(getSummary(pkg));
+    tree.children.push(getRemarks(pkg));
+
+    // for (const member of entrypoint.members.filter(i => [ApiItemKind.Class, ApiItemKind.Interface].includes(i.kind))) {
+    //     console.log(chalk.green(`${member.kind} -- ${member.displayName}`));
+    // }
+
+    // const groups = groupBy(entrypoint.members, (item: ApiItem) => PageKind(item));
+
+    // const inline = groups.get("Inline");
+    // const pages = groups.get("Page");
+
+    // const variables = entrypoint.members
+    //     .filter(item => item.kind === ApiItemKind.Variable)
+    //     .map(item => item as ApiVariable);
+
+    const groups = groupBy(entrypoint.members, item => item.kind);
+    const variables = groups.get(ApiItemKind.Variable)?.map(i => i as ApiVariable);
+    const functions = groups.get(ApiItemKind.Function)?.map(i => i as ApiFunction);
+    const enums = groups.get(ApiItemKind.Enum)?.map(i => i as ApiEnum);
+
+    if (variables) {
+        tree.children.push(md.heading(2, [md.text("Variables")]) as Heading);
+        tree.children.push(GenerateTable(variables));
+
+        variables.forEach(variable => tree.children.push(getSectionForItem(variable, 3)));
+
+        // for (const variable of variables) {
+        //     tree.children.push(getSectionForItem(variable, 2));
+        // }
+    }
+    if (functions) {
+        tree.children.push(md.heading(2, [md.text("Functions")]) as Heading);
+        tree.children.push(GenerateTable(functions));
+    }
+    if (enums) {
+        tree.children.push(md.paragraph([md.heading(2, [md.text("Enums")])]) as Paragraph);
+        tree.children.push(GenerateTable(enums));
+    }
+
+    // console.log(tree);
+    const toMd = toMarkdown(compact(tree), {
+        bullet: "-",
+        listItemIndent: "one",
+        incrementListMarker: false,
+        extensions: [
+            gfmToMarkdown(),
+            frontmatterToMarkdown(["toml", "yaml"])
+        ]
+    });
+    const fromMd = fromMarkdown(toMd, "utf8", {
+        extensions: [gfm()],
+        mdastExtensions: [gfmFromMarkdown(), frontmatterFromMarkdown()],
+    });
+    // console.log(toMarkdown(fromMd, { extensions: [gfmToMarkdown(), frontmatterToMarkdown(["toml", "yaml"])] }));
+    console.log(toMd);
+    FileSystem.writeFile(path.join("api-md", PackageName.getUnscopedName(pkg.displayName) + ".md"), toMd);
+    // console.log(JSON.stringify(fromMd, undefined, 2));
+
+    // for (const member of entrypoint.members) {
+    //     console.log(chalk.green(`${member.kind} -- ${member.displayName}`));
+    // }
+}
+
+function getBreadcrumb(apiItem: ApiItem): Paragraph {
+    const output = md.paragraph([
+        md.link(_getLinkFilenameForApiItem(apiItem), "Home", [md.text("Home")]),
+        md.text(" > "),
+    ]) as Paragraph;
+
+    for (const hierarchyItem of apiItem.getHierarchy()) {
+        console.log(chalk.red(`hierarchyItem: ${hierarchyItem.kind} ${hierarchyItem}`));
+        switch (hierarchyItem.kind) {
+            case ApiItemKind.Model:
+            case ApiItemKind.EntryPoint:
+                // We don't show the model as part of the breadcrumb because it is the root-level container.
+                // We don't show the entry point because today API Extractor doesn"t support multiple entry points;
+                // this may change in the future.
+                break;
+            default:
+                output.children.push(md.link(_getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName, [md.text(hierarchyItem.displayName)]) as Link);
+        }
+    }
+    return output;
+}
+
+function getSummary(apiItem: ApiItem): Paragraph {
+    const nodes: Content[] = [];
+    nodes.push(md.heading(4, md.text("~~Summary")) as Heading);
+
+    if (apiItem instanceof ApiDocumentedItem) {
+        const tsdocComment = apiItem.tsdocComment;
+
+        if (tsdocComment) {
+            // if (tsdocComment.deprecatedBlock) {
+            //     // console.log(chalk.red(`${apiItem.displayName} is deprecated!`))
+            //     const block = tsdocComment.deprecatedBlock;
+            //     nodes.push(callout("warning", "Deprecated", docNodesToMdast(block.getChildNodes())));
+            // }
+
+            if (tsdocComment.summarySection) {
+                // nodes.push(md.heading(3, md.text("Remarks")) as Heading)
+                nodes.push(md.text("\n\n") as Text);
+                nodes.push(...docNodesToMdast(tsdocComment.summarySection.nodes));
+            }
+        }
+    }
+    return md.paragraph(nodes) as Paragraph;
+}
+
+function getDeprecatedCallout(item: ApiDocumentedItem): Paragraph {
+    if (item.tsdocComment?.deprecatedBlock) {
+        // console.log(chalk.red(`${apiItem.displayName} is deprecated!`))
+        const block = item.tsdocComment?.deprecatedBlock;
+        return callout("warning", "Deprecated", docNodesToMdast(block.getChildNodes()));
+    } else return md.paragraph() as Paragraph;
+}
+
+
+function getRemarks(apiItem: ApiItem): Paragraph {
+    const nodes: Content[] = [];
+    if (apiItem instanceof ApiDocumentedItem) {
+        const tsdocComment = apiItem.tsdocComment;
+
+        if (tsdocComment) {
+            // Write the @remarks block
+            if (tsdocComment.remarksBlock) {
+                nodes.push(md.heading(3, md.text("Remarks")) as Heading)
+                nodes.push(...docNodesToMdast(tsdocComment.remarksBlock.content.nodes));
+            }
+
+            // Write the @example blocks
+            const exampleBlocks: DocBlock[] = tsdocComment.customBlocks.filter(
+                (x) => x.blockTag.tagNameWithUpperCase === StandardTags.example.tagNameWithUpperCase
+            );
+
+            let exampleNumber: number = 1;
+            for (const exampleBlock of exampleBlocks) {
+                const heading: string = exampleBlocks.length > 1 ? `Example ${exampleNumber}` : 'Example';
+
+                nodes.push(md.heading(4, md.text(heading)) as Heading);
+                nodes.push(...docNodesToMdast(exampleBlock.content.nodes));
+
+                ++exampleNumber;
+            }
+        }
+    }
+    return md.paragraph(nodes) as Paragraph;
+}
+
+function getNotes(apiItem: ApiItem): Paragraph {
+    const nodes: Content[] = [];
+    if (apiItem instanceof ApiDocumentedItem) {
+        const tsdocComment = apiItem.tsdocComment;
+
+        if (tsdocComment) {
+            // Write the @remarks block
+            if (tsdocComment.deprecatedBlock) {
+                nodes.push(md.strong(md.text("Deprecated:")) as Strong);
+                nodes.push(md.text(" ") as Text);
+                nodes.push(...docNodesToMdast(tsdocComment.deprecatedBlock.getChildNodes()));
+            }
+        }
+    }
+    return md.paragraph(nodes) as Paragraph;
+}
+
+
+
+function _getFilenameForApiItem(apiItem: ApiItem): string {
+    if (apiItem.kind === ApiItemKind.Model) {
+        return 'index.md';
+    }
+
+    let baseName = '';
+    for (const hierarchyItem of apiItem.getHierarchy()) {
+        // For overloaded methods, add a suffix such as "MyClass.myMethod_2".
+        let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);
+        if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
+            // eslint-disable-next-line unicorn/no-lonely-if
+            if (hierarchyItem.overloadIndex > 1) {
+                // Subtract one for compatibility with earlier releases of API Documenter.
+                // (This will get revamped when we fix GitHub issue #1308)
+                qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
+            }
+        }
+
+        switch (hierarchyItem.kind) {
+            case ApiItemKind.EntryPoint:
+                break;
+            case ApiItemKind.Package:
+                baseName = getSafeFilenameForName(PackageName.getUnscopedName(hierarchyItem.displayName));
+                break;
+            default:
+                baseName += '.' + qualifiedName;
+        }
+    }
+    return baseName + '.md';
+}
+
+function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
+    return './' + _getFilenameForApiItem(apiItem);
+}
+
+export function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
     return nodes.filter((n) => docNodeToMdast(n) !== undefined).map((n) => docNodeToMdast(n)!)
 }
 
-function docNodeToMdast(docNode: DocNode): Content | undefined {
+export function docNodeToMdast(docNode: DocNode): Content | undefined {
     switch (docNode.kind) {
         case DocNodeKind.Block:
         case DocNodeKind.BlockTag:
@@ -709,4 +485,58 @@ function docNodeToMdast(docNode: DocNode): Content | undefined {
         default:
             throw new Error(`Unsupported DocNodeKind kind: ${docNode.kind}`);
     }
+}
+
+function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable)[]): Table {
+    const table = md.table([null], []) as Table;
+
+    let kind: ApiItemKind = ApiItemKind.Variable;
+    let typeExcerpt = (item: ApiItem) => "";
+
+    if (items.length > 0) {
+        kind = items[0].kind;
+        if (items[0] instanceof ApiFunction) {
+            typeExcerpt = (item: ApiItem) => (item as ApiFunction).returnTypeExcerpt.text;
+        } else if (items[0] instanceof ApiVariable) {
+            typeExcerpt = (item: ApiItem) => (item as ApiVariable).variableTypeExcerpt.text;
+        } else {
+            // default
+        }
+    }
+
+    // Headers are in the first row of table
+    table.children.push(md.tableRow([
+        md.tableCell([md.text(kind.toString())]),
+        md.tableCell([md.text("Type")]),
+        md.tableCell([md.text("Description")]),
+        md.tableCell([md.text("Notes")])
+    ]) as TableRow);
+
+    for (const item of items) {
+        const summary = getSummary(item);
+        const remarks = getRemarks(item);
+        const notes = getNotes(item);
+        table.children.push(md.tableRow([
+            md.tableCell([md.text(item.name)]),
+            md.tableCell([md.text(typeExcerpt(item))]),
+            md.tableCell([summary]),
+            md.tableCell([notes])
+        ]) as TableRow);
+    }
+
+    return table;
+}
+
+function getSectionForItem(item: ApiVariable, headingLevel = 2): Paragraph {
+    const nodes: Content[] = [md.heading(headingLevel, md.text(item.name)) as Heading];
+    nodes.push(md.text("\n\n") as Text);
+
+    if (item.tsdocComment) {
+        const depItem = getDeprecatedCallout(item as ApiDocumentedItem);
+        nodes.push(depItem);
+        nodes.push(getSummary(item));
+        nodes.push(getRemarks(item));
+    }
+
+    return md.paragraph(nodes) as Paragraph;
 }

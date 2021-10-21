@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/prevent-abbreviations */
-import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiModel, ApiPackage, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
+import { ApiDocumentedItem, ApiItem, ApiItemContainerMixin, ApiItemKind, ApiModel, ApiPackage, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
 import * as tsdoc from "@microsoft/tsdoc";
 import chalk from "chalk";
 import { string } from "yargs";
@@ -103,3 +103,34 @@ import { DocumenterConfig } from "./DocumenterConfig";
 export const __filename = new URL("", import.meta.url).pathname;
 // Will contain trailing slash
 export const __dirname = new URL(".", import.meta.url).pathname;
+
+/**
+ * @description
+ * Takes an Array<V>, and a grouping function,
+ * and returns a Map of the array grouped by the grouping function.
+ *
+ * Implementation from https://stackoverflow.com/a/38327540/551579
+ *
+ * @param list An array of type V.
+ * @param keyGetter A Function that takes the the Array type V as an input, and returns a value of type K.
+ *                  K is generally intended to be a property key of V.
+ *
+ * @returns Map of the array grouped by the grouping function.
+ */
+export function groupBy<K, V>(list: readonly V[], keyGetter: (input: V) => K): Map<K, V[]> {
+    const map = new Map<K, V[]>();
+    list.forEach((item) => {
+        const key = keyGetter(item);
+        const collection = map.get(key);
+        if (!collection) {
+            map.set(key, [item]);
+        } else {
+            collection.push(item);
+        }
+    });
+    return map;
+}
+
+export function groupByApiKind(list: readonly ApiItem[]): Map<ApiItemKind, ApiItem[]> {
+    return groupBy(list, item => item.kind);
+}
