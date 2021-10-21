@@ -307,9 +307,8 @@ function getBreadcrumb(apiItem: ApiItem): Paragraph {
     return output;
 }
 
-function getSummary(apiItem: ApiItem): Paragraph {
+function getSummary(apiItem: ApiItem, withHeading = false): Paragraph {
     const nodes: Content[] = [];
-    nodes.push(md.heading(4, md.text("~~Summary")) as Heading);
 
     if (apiItem instanceof ApiDocumentedItem) {
         const tsdocComment = apiItem.tsdocComment;
@@ -322,8 +321,10 @@ function getSummary(apiItem: ApiItem): Paragraph {
             // }
 
             if (tsdocComment.summarySection) {
-                // nodes.push(md.heading(3, md.text("Remarks")) as Heading)
-                nodes.push(md.text("\n\n") as Text);
+                if (withHeading) {
+                    nodes.push(md.heading(4, md.text("Summary")) as Heading);
+                    nodes.push(md.text("\n\n") as Text);
+                }
                 nodes.push(...docNodesToMdast(tsdocComment.summarySection.nodes));
             }
         }
@@ -425,11 +426,31 @@ function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
     return './' + _getFilenameForApiItem(apiItem);
 }
 
-export function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
-    return nodes.filter((n) => docNodeToMdast(n) !== undefined).map((n) => docNodeToMdast(n)!)
+export function plainTextToMdast(docNode: DocNode): Content[] {
+    // const content:Content[] = [];
+    const docPlainText = docNode as DocPlainText;
+    // console.log(chalk.bgBlue(docPlainText.text));
+    const toReturn = fromMarkdown(docPlainText.text);
+    return toReturn.children;
 }
 
-export function docNodeToMdast(docNode: DocNode): Content | undefined {
+export function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
+    const res = nodes
+        // .filter(n=>docNodeToMdast(n) !== undefined)
+        .forEach((n) => {
+            const mdast = docNodeToMdast(n);
+            if (mdast !== undefined) {
+                return mdast;
+            }
+            else return [] as Content[];
+        });
+
+}
+
+export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
+    // console.log(chalk.greenBright(docNode.kind));
+    // console.log(chalk.greenBright(docNode));
+
     switch (docNode.kind) {
         case DocNodeKind.Block:
         case DocNodeKind.BlockTag:
@@ -474,8 +495,7 @@ export function docNodeToMdast(docNode: DocNode): Content | undefined {
             const children: Content[] = docNodesToMdast(trimmedParagraph.nodes);
             return md.paragraph(children) as Paragraph;
         case DocNodeKind.PlainText:
-            const docPlainText = docNode as DocPlainText;
-            return md.text(docPlainText.text) as Text;
+            return plainTextToMdast(docNode);
         case DocNodeKind.Section:
             const docSection: DocSection = docNode as DocSection;
             const sectionChildren: Content[] = docNodesToMdast(docSection.nodes);
