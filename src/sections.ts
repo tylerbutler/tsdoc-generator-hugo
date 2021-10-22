@@ -1,63 +1,16 @@
 import {
-    ApiClass,
     ApiDeclaredItem,
-    ApiDocumentedItem,
-    ApiEnum,
-    ApiFunction,
-    ApiInterface,
-    ApiItem,
-    ApiItemKind,
-    ApiModel,
-    ApiNamespace,
-    ApiPackage,
-    ApiParameterListMixin,
-    ApiReleaseTagMixin,
-    ApiTypeAlias,
-    ApiVariable,
-    Excerpt,
-    ExcerptTokenKind,
-    IResolveDeclarationReferenceResult,
-    ReleaseTag
+    ApiDocumentedItem, ApiItem,
+    ApiItemKind, ApiParameterListMixin
 } from "@microsoft/api-extractor-model";
-import { gfm } from "micromark-extension-gfm";
-import { compact } from "mdast-util-compact";
 import {
-    DocBlock,
-    DocBlockTag,
-    DocCodeSpan,
-    DocComment,
-    DocErrorText,
-    DocEscapedText,
-    DocFencedCode,
-    DocHtmlEndTag,
-    DocHtmlStartTag,
-    DocLinkTag,
-    DocNode,
-    DocNodeKind,
-    DocNodeTransforms,
-    DocParagraph,
-    DocPlainText,
-    DocSection,
-    StandardTags,
-    StringBuilder
+    DocBlock, StandardTags
 } from "@microsoft/tsdoc";
-import { ConsoleTerminalProvider, FileSystem, FileSystem as fs, PackageName } from "@rushstack/node-core-library";
-import chalk from "chalk";
-import type { Break, Code, Content, Heading, HTML, InlineCode, Link, Paragraph, PhrasingContent, Root, Strong, Table, TableRow, Text } from "mdast";
+import { PackageName } from "@rushstack/node-core-library";
+import type { Code, Content, Heading, Link, Paragraph, Strong, Text } from "mdast";
 import * as md from "mdast-builder";
-import { fromMarkdown } from "mdast-util-from-markdown";
-import { frontmatterToMarkdown, frontmatterFromMarkdown } from "mdast-util-frontmatter";
-import { gfmToMarkdown, gfmFromMarkdown } from "mdast-util-gfm";
-import { toMarkdown } from "mdast-util-to-markdown";
-import { toString } from "mdast-util-to-string";
-import path from "path";
-import remarkGfm from "remark-gfm";
-import remarkStringify from "remark-stringify";
-import { unified } from "unified";
-import { DocumenterConfig } from "./DocumenterConfig.js";
 import { callout, docNodesToMdast } from "./mdNodes.js";
-import { getSafeFilenameForName, groupBy, groupByApiKind, isAllowedPackage } from "./util.js";
-import { squeezeParagraphs } from "mdast-squeeze-paragraphs";
+import { getSafeFilenameForName } from "./util.js";
 
 export async function getBreadcrumb(apiItem: ApiItem): Promise<Paragraph> {
     const output = md.paragraph([
@@ -170,15 +123,16 @@ export async function getSignature(item: ApiDeclaredItem): Promise<Paragraph> {
     nodes.push(md.text("\n\n") as Text);
 
     nodes.push(md.code("typescript", item.getExcerptWithModifiers()) as Code);
+    // nodes.push(md.text("\n\n") as Text);
     return md.paragraph(nodes) as Paragraph;
 }
 
 function _getFilenameForApiItem(apiItem: ApiItem): string {
     if (apiItem.kind === ApiItemKind.Model) {
-        return 'index.md';
+        return "index.md";
     }
 
-    let baseName = '';
+    let baseName = "";
     for (const hierarchyItem of apiItem.getHierarchy()) {
         // For overloaded methods, add a suffix such as "MyClass.myMethod_2".
         let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);

@@ -23,7 +23,7 @@ import { MdOutputPage } from "./types.js";
  * @param outputPath
  * @returns A tuple of the MDAST for the current item, and an array of MDAST for any other items that were generated.
  */
-export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdOutputPage[]]> {
+export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdOutputPage[] | undefined, MdOutputPage[] | undefined]> {
     if (![ApiItemKind.Package, ApiItemKind.Class].includes(item.kind)) {
         throw new Error(`Expected a Package/Class, got a: ${item.kind}`);
     }
@@ -49,14 +49,14 @@ export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdO
     const functions = entrypoint.members.filter((i): i is ApiFunction => i.kind === ApiItemKind.Function);
     const enums = entrypoint.members.filter((i): i is ApiEnum => i.kind === ApiItemKind.Enum);
 
-    let classMds: Promise<MdOutputPage[]> | undefined;
+    let otherPages: Promise<MdOutputPage[]>[] = [];
 
     // const groups = groupBy(entrypoint.members, item => item.kind);
     // const variables = groups.get(ApiItemKind.Variable)?.map(i => i as ApiVariable);
     // const functions = groups.get(ApiItemKind.Function)?.map(i => i as ApiFunction);
     // const enums = groups.get(ApiItemKind.Enum)?.map(i => i as ApiEnum);
 
-    if (variables && variables.length > 0) {
+    if (variables.length > 0) {
         tree.children.push(md.heading(2, [md.text("Variables")]) as Heading);
         tree.children.push(await GenerateTable(variables));
 
@@ -66,51 +66,73 @@ export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdO
         }
     }
 
-    if (interfaces && interfaces.length > 0) {
+    let interfacePages: Promise<MdOutputPage[]> | undefined;
+    if (interfaces.length > 0) {
         tree.children.push(md.heading(2, [md.text("Interfaces")]) as Heading);
         tree.children.push(await GenerateTable(interfaces));
-    }
 
-    if (classes && classes.length > 0) {
-        tree.children.push(md.heading(2, [md.text("Classes")]) as Heading);
-        tree.children.push(await GenerateTable(classes));
-
-        classMds = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
+        interfacePages = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
             const ast = await GenerateClassMdast(i);
             return {
                 mdast: ast,
                 item: i,
             }
         }));
+        // if (interfacePages) {
+        //     otherPages.push(interfacePages);
+        // }
     }
 
-    if (typeAliases && typeAliases.length > 0) {
+    let classPages: Promise<MdOutputPage[]> | undefined;
+    if (classes.length > 0) {
+        tree.children.push(md.heading(2, [md.text("Classes")]) as Heading);
+        tree.children.push(await GenerateTable(classes));
+
+        classPages = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
+            const ast = await GenerateClassMdast(i);
+            return {
+                mdast: ast,
+                item: i,
+            }
+        }));
+        // otherPages.push(Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
+        //     const ast = await GenerateClassMdast(i);
+        //     return {
+        //         mdast: ast,
+        //         item: i,
+        //     }
+        // })));
+    }
+
+    if (typeAliases.length > 0) {
         tree.children.push(md.heading(2, [md.text("Type aliases")]) as Heading);
-        tree.children.push(await GenerateTable(typeAliases));
+        // tree.children.push(await GenerateTable(typeAliases));
 
         for (const subItem of typeAliases) {
             const section = await GenerateItemSection(subItem, 3);
             tree.children.push(section);
         }
-
-        typeAliases.forEach(async alias => tree.children.push(await GenerateItemSection(alias, 3)));
     }
 
-    if (enums && enums.length > 0) {
+    if (enums.length > 0) {
         tree.children.push(md.paragraph([md.heading(2, [md.text("Enums")])]) as Paragraph);
         tree.children.push(await GenerateTable(enums));
     }
 
-    if (functions && functions.length > 0) {
+    if (functions.length > 0) {
         tree.children.push(md.heading(2, [md.text("Functions")]) as Heading);
         tree.children.push(await GenerateTable(functions));
     }
 
     // console.log(tree);
-    if (classMds) {
-        others.push(...await classMds);
-    }
-    return [tree, others];
+    // if (otherPages.length > 0) {
+    //     console.log(chalk.yellowBright(`${(await otherPages).length}`));
+    //     for(const pageCollection of otherPages) {
+    //         const pages = await pageCollection;
+    //     }
+    //     others.push(...await otherPages);
+    // }
+    return [tree, await classPages, await interfacePages];
 }
 
 export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise<Root> {
@@ -139,7 +161,7 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise
     const enums = item.members.filter((i): i is ApiEnum => i.kind === ApiItemKind.Enum);
 
     if (constructors.length > 0) {
-        // tree.children.push(md.heading(2, [md.text("Constructors")]) as Heading);
+        // tree.children.push(md.heading(2, [md.text("Constructor")]) as Heading);
         // tree.children.push(await GenerateTable(constructors));
 
         for (const subItem of constructors) {
@@ -154,12 +176,16 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise
 
 async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstructor, headingLevel = 2): Promise<Paragraph> {
     const nodes: Content[] = [];
+    let name: string = "";
 
     if (ApiNameMixin.isBaseClassOf(item)) {
-        const heading = md.heading(headingLevel, md.text(item.name)) as Heading;
-        nodes.push(heading);
-        nodes.push(md.text("\n\n") as Text);
+        name = item.name;
+    } else if (item instanceof ApiConstructor) {
+        name = "Constructor";
     }
+    const heading = md.heading(headingLevel, md.text(name)) as Heading;
+    nodes.push(heading);
+    nodes.push(md.text("\n\n") as Text);
 
     if (item.tsdocComment) {
         const results = await Promise.all<Content>([
@@ -171,6 +197,7 @@ async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstru
         nodes.push(...results)
     }
 
+    // nodes.push(md.text("\n\n") as Text);
     nodes.push(await getSignature(item as ApiDeclaredItem));
 
     return md.paragraph(nodes) as Paragraph;

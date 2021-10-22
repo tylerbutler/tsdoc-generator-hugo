@@ -65,6 +65,22 @@ import { getDeprecatedCallout, getNotes, getRemarks, getSignature, getSummary } 
 import { GeneratePackageMdast } from "./generators.js";
 import { MdOutputPage } from "./types.js";
 
+const toMd = (r: Root): string => {
+    return toMarkdown(squeezeParagraphs(compact(r)), {
+        bullet: "-",
+        listItemIndent: "one",
+        incrementListMarker: false,
+        extensions: [
+            gfmToMarkdown(),
+            frontmatterToMarkdown(["yaml"])
+        ]
+    });
+}
+// const fromMd = fromMarkdown(toMd(tree), "utf8", {
+//     extensions: [gfm()],
+//     mdastExtensions: [gfmFromMarkdown(), frontmatterFromMarkdown()],
+// });
+// console.log(toMarkdown(fromMd, { extensions: [gfmToMarkdown(), frontmatterToMarkdown(["toml", "yaml"])] }));
 
 
 // export type InlineKinds = ApiItemKind.Variable | ApiItemKind.
@@ -195,7 +211,9 @@ export class HugoDocumenter {
 
 async function WriteApiFiles(model: ApiItem, level: number, outputPath: string): Promise<void> {
     let tree: Root = md.root() as Root;
-    let others: MdOutputPage[] = [];
+    let classPages: MdOutputPage[] | undefined;
+    let interfacePages: MdOutputPage[] | undefined;
+
     const indent = level.toString().repeat(level);
 
     console.log(
@@ -205,41 +223,24 @@ async function WriteApiFiles(model: ApiItem, level: number, outputPath: string):
     switch (model.kind) {
         case ApiItemKind.Package:
             console.log(`Writing package: ${model.displayName}`);
-            [tree, others] = await GeneratePackageMdast(model as ApiPackage);
+            [tree, classPages, interfacePages] = await GeneratePackageMdast(model as ApiPackage);
             break;
         case ApiItemKind.Model:
         default:
             throw new Error(`Cannot handle ApiItemKind.${model.kind}`);
     }
 
-    const toMd = (r: Root): string => {
-        return toMarkdown(squeezeParagraphs(compact(r)), {
-            bullet: "-",
-            listItemIndent: "one",
-            incrementListMarker: false,
-            extensions: [
-                gfmToMarkdown(),
-                frontmatterToMarkdown(["toml", "yaml"])
-            ]
-        });
-    }
-    const fromMd = fromMarkdown(toMd(tree), "utf8", {
-        extensions: [gfm()],
-        mdastExtensions: [gfmFromMarkdown(), frontmatterFromMarkdown()],
-    });
-    // console.log(toMarkdown(fromMd, { extensions: [gfmToMarkdown(), frontmatterToMarkdown(["toml", "yaml"])] }));
     console.log(toMd(tree));
     FileSystem.writeFile(path.join(outputPath, PackageName.getUnscopedName(model.displayName) + ".md"), toMd(tree));
 
-    for (const page of others) {
-        console.log(toMd(page.mdast));
-        const pkg = page.item.getAssociatedPackage();
-        const unscopedName = pkg ? PackageName.getUnscopedName(pkg.displayName) : "_unknown";
-        const targetPath = path.join(outputPath, unscopedName);
-        FileSystem.ensureFolder(targetPath);
-        FileSystem.writeFile(path.join(targetPath, page.item.displayName + ".md"), toMd(tree));
-
+    if (classPages) {
+        WriteSubpages(classPages, outputPath);
     }
+
+    if (interfacePages) {
+        WriteSubpages(interfacePages, outputPath);
+    }
+
     // console.log(JSON.stringify(fromMd, undefined, 2));
 
     // for (const member of entrypoint.members) {
@@ -251,4 +252,14 @@ async function WriteApiFiles(model: ApiItem, level: number, outputPath: string):
     // }
 }
 
-
+function WriteSubpages(pages: MdOutputPage[], outputPath: string) {
+    for (const page of pages) {
+        const content = toMd(page.mdast);
+        console.log(content);
+        const pkg = page.item.getAssociatedPackage();
+        const unscopedName = pkg ? PackageName.getUnscopedName(pkg.displayName).toLowerCase() : "_unknown";
+        const targetPath = path.join(outputPath, unscopedName);
+        FileSystem.ensureFolder(targetPath);
+        FileSystem.writeFile(path.join(targetPath, page.item.displayName + ".md"), content);
+    }
+}
