@@ -16,27 +16,11 @@ import {
     ReleaseTag
 } from "@microsoft/api-extractor-model";
 import {
-    DocBlock,
-    DocBlockTag,
-    DocCodeSpan,
-    DocComment,
-    DocErrorText,
-    DocEscapedText,
-    DocFencedCode,
-    DocHtmlEndTag,
-    DocHtmlStartTag,
-    DocLinkTag,
-    DocNode,
-    DocNodeKind,
-    DocNodeTransforms,
-    DocParagraph,
-    DocPlainText,
-    DocSection,
-    StandardTags
+    DocBlock, DocComment, StandardTags
 } from "@microsoft/tsdoc";
 import { FileSystem as fs, PackageName } from "@rushstack/node-core-library";
 import chalk from "chalk";
-import type { Break, Code, Content, Heading, HTML, InlineCode, Link, PhrasingContent, Root, Text } from "mdast";
+import type { Code, Content, Heading, Link, PhrasingContent, Root, Text } from "mdast";
 import * as md from "mdast-builder";
 import { Paragraph } from "mdast-util-from-markdown/lib";
 import { frontmatterToMarkdown } from "mdast-util-frontmatter";
@@ -44,8 +28,8 @@ import { gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import path from "path";
 import { DocumenterConfig } from "./DocumenterConfig.js";
-import { docNodesToMdast, docNodeToMdast, FrontMatter, HugoDocumenterOptions } from "./hugo.js";
-import { callout } from "./nodes.js";
+import { FrontMatter, HugoDocumenterOptions } from "./hugo.js";
+import { callout, docNodesToMdast, docNodeToMdast } from "./mdNodes.js";
 import { getSafeFilenameForName, isAllowedPackage } from "./util.js";
 
 export class HugoDocumenterOld {
