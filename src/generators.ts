@@ -13,7 +13,8 @@ import {
 import chalk from "chalk";
 import type { Content, Heading, Paragraph, Root, Table, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
-import { getBreadcrumb, getDeprecatedCallout, getNotes, getRemarks, getSignature, getSummary } from "./sections.js";
+import { ApiItemWrapper } from "./ApiModelWrapper.js";
+import { getBreadcrumb, getDeprecatedCallout, getExtends, getNotes, getRemarks, getSignature, getSummary } from "./sections.js";
 import { MdOutputPage } from "./types.js";
 
 /**
@@ -151,24 +152,28 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise
     ]);
     tree.children.push(breadcrumb, summary, signature, remarks);
 
-    // const constructors = groups.get(ApiItemKind.Constructor);
-    const constructors = item.members.filter((i): i is ApiConstructor => i.kind === ApiItemKind.Constructor);
-    const classes = item.members.filter((i): i is ApiClass => i.kind === ApiItemKind.Class);
-    const interfaces = item.members.filter((i): i is ApiInterface => i.kind === ApiItemKind.Interface);
-    const typeAliases = item.members.filter((i): i is ApiTypeAlias => i.kind === ApiItemKind.TypeAlias);
-    const variables = item.members.filter((i): i is ApiVariable => i.kind === ApiItemKind.Variable);
-    const functions = item.members.filter((i): i is ApiFunction => i.kind === ApiItemKind.Function);
-    const enums = item.members.filter((i): i is ApiEnum => i.kind === ApiItemKind.Enum);
+    const wrapper = new ApiItemWrapper(item);
 
-    if (constructors.length > 0) {
+    // const constructors = groups.get(ApiItemKind.Constructor);
+    // const constructors = item.members.filter((i): i is ApiConstructor => i.kind === ApiItemKind.Constructor);
+    // const classes = item.members.filter((i): i is ApiClass => i.kind === ApiItemKind.Class);
+    // const interfaces = item.members.filter((i): i is ApiInterface => i.kind === ApiItemKind.Interface);
+    // const typeAliases = item.members.filter((i): i is ApiTypeAlias => i.kind === ApiItemKind.TypeAlias);
+    // const variables = item.members.filter((i): i is ApiVariable => i.kind === ApiItemKind.Variable);
+    // const functions = item.members.filter((i): i is ApiFunction => i.kind === ApiItemKind.Function);
+    // const enums = item.members.filter((i): i is ApiEnum => i.kind === ApiItemKind.Enum);
+
+    if (wrapper.constructors.length > 0) {
         // tree.children.push(md.heading(2, [md.text("Constructor")]) as Heading);
         // tree.children.push(await GenerateTable(constructors));
 
-        for (const subItem of constructors) {
+        for (const subItem of wrapper.constructors) {
             const section = await GenerateItemSection(subItem, 2);
             tree.children.push(section);
         }
     }
+
+    tree.children.push(await getExtends(item));
 
     return tree;
 }
@@ -197,7 +202,7 @@ async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstru
         nodes.push(...results)
     }
 
-    // nodes.push(md.text("\n\n") as Text);
+    nodes.push(md.text("\n\n") as Text);
     nodes.push(await getSignature(item as ApiDeclaredItem));
 
     return md.paragraph(nodes) as Paragraph;

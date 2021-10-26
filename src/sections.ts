@@ -1,15 +1,16 @@
 import {
+    ApiClass,
     ApiDeclaredItem,
-    ApiDocumentedItem, ApiItem,
-    ApiItemKind, ApiParameterListMixin
+    ApiDocumentedItem, ApiIndexSignature, ApiInterface, ApiItem,
+    ApiItemKind, ApiModel, ApiParameterListMixin, Excerpt, ExcerptTokenKind, IResolveDeclarationReferenceResult, TypeParameter
 } from "@microsoft/api-extractor-model";
 import {
     DocBlock, StandardTags
 } from "@microsoft/tsdoc";
 import { PackageName } from "@rushstack/node-core-library";
-import type { Code, Content, Heading, Link, Paragraph, Strong, Text } from "mdast";
+import type { Code, Content, Heading, Link, Paragraph, PhrasingContent, Strong, Text } from "mdast";
 import * as md from "mdast-builder";
-import { callout, docNodesToMdast } from "./mdNodes.js";
+import { callout, docNodesToMdast, docNodeToMdast } from "./mdNodes.js";
 import { getSafeFilenameForName } from "./util.js";
 
 export async function getBreadcrumb(apiItem: ApiItem): Promise<Paragraph> {
@@ -127,6 +128,107 @@ export async function getSignature(item: ApiDeclaredItem): Promise<Paragraph> {
     return md.paragraph(nodes) as Paragraph;
 }
 
+export async function getExtends(apiItem: ApiClass | ApiInterface): Promise<Paragraph> {
+    const nodes: Content[] = [];
+
+    if (apiItem instanceof ApiClass && apiItem.extendsType) {
+        const excerpt = await _getExcerptWithHyperlinks(apiItem.extendsType.excerpt)
+        nodes.push(md.paragraph([
+            md.strong(md.text("Extends:")),
+            md.text(" "),
+            ...excerpt,
+            md.text("\n\n")]) as Paragraph);
+    }
+
+    if (apiItem instanceof ApiClass && apiItem.implementsTypes.length > 0) {
+        const implementsParagraph = md.paragraph([
+            md.strong(md.text("Implements:")),
+            md.text(" "),
+        ]) as Paragraph;
+
+        let needsComma: boolean = false;
+        for (const implementsType of apiItem.implementsTypes) {
+            const excerpt = await _getExcerptWithHyperlinks(implementsType.excerpt);
+            if (needsComma) {
+                implementsParagraph.children.push(md.text(', ') as Text);
+            }
+            implementsParagraph.children.push(...excerpt);
+            needsComma = true;
+        }
+        nodes.push(md.text("\n\n") as Text, implementsParagraph);
+    }
+
+    if (apiItem.typeParameters.length > 0) {
+        console.log(`HERITAGE GENERIC: ${JSON.stringify(apiItem.typeParameters.map(v => v.name))}`);
+        const typeParamsParagraph = md.paragraph([
+            md.strong(md.text("Type parameters:")),
+            md.text(" \n\n"),
+        ]) as Paragraph;
+
+        for (const typeParam of apiItem.typeParameters) {
+            const typeParamParagraph = md.paragraph([
+                md.strong(md.text(typeParam.name)),
+                md.text(" -- "),
+            ]) as Paragraph;
+
+            if (typeParam.tsdocTypeParamBlock) {
+                console.log(`Appending section for ${typeParam.name}`);
+                const mdast = docNodeToMdast(typeParam.tsdocTypeParamBlock.content);
+
+                if (mdast) {
+                    typeParamParagraph.children.push(...(mdast as PhrasingContent[]))
+                }
+            }
+
+            typeParamsParagraph.children.push(...typeParamParagraph.children);
+        }
+        nodes.push(typeParamsParagraph);
+    }
+    return md.paragraph(nodes) as Paragraph;
+}
+
+export async function getTypeParams(params: readonly TypeParameter[], excerpt?: Excerpt): Promise<void> {
+}
+
+
+export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model?: ApiModel): Promise<PhrasingContent[]> {
+    const nodes: PhrasingContent[] = [];
+
+    for (const token of excerpt.spannedTokens) {
+        // Markdown doesn't provide a standardized syntax for hyperlinks inside code spans, so we will render
+        // the type expression as DocPlainText.  Instead of creating multiple DocParagraphs, we can simply
+        // discard any newlines and let the renderer do normal word-wrapping.
+        const unwrappedTokenText: string = token.text.replace(/[\r\n]+/g, ' ');
+
+        // If it's hyperlinkable, then append a DocLinkTag
+        if (token.kind === ExcerptTokenKind.Reference && token.canonicalReference && model) {
+            const apiItemResult: IResolveDeclarationReferenceResult = model.resolveDeclarationReference(
+                token.canonicalReference,
+                undefined
+            );
+
+            if (apiItemResult.resolvedApiItem) {
+                nodes.push(md.link(_getLinkFilenameForApiItem(apiItemResult.resolvedApiItem), unwrappedTokenText, [
+                    md.text(unwrappedTokenText)
+                ]) as Link);
+                // docNodeContainer.appendNode(
+                //     new DocLinkTag({
+                //         configuration,
+                //         tagName: '@link',
+                //         linkText: unwrappedTokenText,
+                //         urlDestination: _getLinkFilenameForApiItem(apiItemResult.resolvedApiItem)
+                //     })
+                // );
+                continue;
+            }
+        } else {
+            nodes.push(md.text(unwrappedTokenText) as Text);
+        }
+    }
+    return nodes;
+}
+
+
 function _getFilenameForApiItem(apiItem: ApiItem): string {
     if (apiItem.kind === ApiItemKind.Model) {
         return "index.md";
@@ -161,3 +263,4 @@ function _getFilenameForApiItem(apiItem: ApiItem): string {
 function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
     return './' + _getFilenameForApiItem(apiItem);
 }
+
