@@ -7,14 +7,15 @@ import {
     ApiFunction,
     ApiInterface,
     ApiItem,
-    ApiItemKind, ApiModel, ApiNameMixin, ApiPackage, ApiTypeAlias,
+    ApiItemKind, ApiMethod, ApiModel, ApiNameMixin, ApiPackage, ApiParameterListMixin, ApiTypeAlias,
     ApiVariable
 } from "@microsoft/api-extractor-model";
 import chalk from "chalk";
 import type { Content, Heading, Paragraph, Root, Table, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
 import { ApiItemWrapper } from "./ApiModelWrapper.js";
-import { getBreadcrumb, getDeprecatedCallout, getExtends, getNotes, getRemarks, getSignature, getSummary } from "./sections.js";
+import { spacer } from "./mdNodes.js";
+import { getBreadcrumb, getDeprecatedCallout, getExtends, getFunctionParameters, getNotes, getRemarks, getReturn, getSignature, getSummary } from "./sections.js";
 import { MdOutputPage } from "./types.js";
 
 /**
@@ -59,10 +60,12 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
 
     if (variables.length > 0) {
         tree.children.push(md.heading(2, [md.text("Variables")]) as Heading);
-        tree.children.push(await GenerateTable(variables));
+        if (variables.length > 5) {
+            tree.children.push(await GenerateTable(variables));
+        }
 
         for (const subItem of variables) {
-            const section = await GenerateItemSection(subItem, 3);
+            const section = await GenerateItemSection(subItem, 3, model);
             tree.children.push(section);
         }
     }
@@ -110,7 +113,7 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
         // tree.children.push(await GenerateTable(typeAliases));
 
         for (const subItem of typeAliases) {
-            const section = await GenerateItemSection(subItem, 3);
+            const section = await GenerateItemSection(subItem, 3, model);
             tree.children.push(section);
         }
     }
@@ -143,14 +146,14 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface, model?: 
 
     const tree = md.root() as Root;
 
-    // const heading = md.heading(1, md.text(item.displayName)) as Heading;
+    const heading = md.heading(1, md.text(item.displayName)) as Heading;
     const [breadcrumb, summary, signature, remarks] = await Promise.all([
         getBreadcrumb(item),
         getSummary(item, true),
         getRemarks(item),
         getSignature(item),
     ]);
-    tree.children.push(breadcrumb, summary, signature, remarks);
+    tree.children.push(heading, breadcrumb, summary, signature, remarks);
 
     const wrapper = new ApiItemWrapper(item);
 
@@ -168,18 +171,30 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface, model?: 
         // tree.children.push(await GenerateTable(constructors));
 
         for (const subItem of wrapper.constructors) {
-            const section = await GenerateItemSection(subItem, 2);
+            const section = await GenerateItemSection(subItem, 2, model);
             tree.children.push(section);
         }
     }
 
     tree.children.push(await getExtends(item, model));
 
+    if (wrapper.methods.length > 0) {
+        tree.children.push(md.heading(2, [md.text("Methods")]) as Heading);
+
+        for (const subItem of wrapper.methods) {
+            const section = await GenerateItemSection(subItem, 3, model);
+            tree.children.push(section);
+        }
+    }
+
+
+    // tree.children.push(await getFunctionParameters(item, model));
+
     return tree;
 }
 
 
-async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstructor, headingLevel = 2): Promise<Paragraph> {
+async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstructor | ApiMethod, headingLevel = 2, model?: ApiModel): Promise<Paragraph> {
     const nodes: Content[] = [];
     let name: string = "";
 
@@ -188,21 +203,28 @@ async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstru
     } else if (item instanceof ApiConstructor) {
         name = "Constructor";
     }
+
     const heading = md.heading(headingLevel, md.text(name)) as Heading;
     nodes.push(heading);
-    nodes.push(md.text("\n\n") as Text);
+    nodes.push(spacer());
 
     if (item.tsdocComment) {
         const results = await Promise.all<Content>([
             getDeprecatedCallout(item as ApiDocumentedItem),
             getSummary(item, true),
-            getRemarks(item)
+            getRemarks(item),
         ]);
 
         nodes.push(...results)
+        nodes.push(spacer());
     }
 
-    nodes.push(md.text("\n\n") as Text);
+    nodes.push(await getReturn(item));
+
+    if (ApiParameterListMixin.isBaseClassOf(item)) {
+        nodes.push(await getFunctionParameters(item, model));
+    }
+
     nodes.push(await getSignature(item as ApiDeclaredItem));
 
     return md.paragraph(nodes) as Paragraph;

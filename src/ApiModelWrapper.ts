@@ -1,4 +1,4 @@
-import { ApiClass, ApiConstructor, ApiEnum, ApiFunction, ApiInterface, ApiItem, ApiItemKind, ApiModel, ApiTypeAlias, ApiVariable } from "@microsoft/api-extractor-model";
+import { ApiClass, ApiConstructor, ApiEnum, ApiFunction, ApiInterface, ApiItem, ApiItemKind, ApiMethod, ApiModel, ApiTypeAlias, ApiVariable } from "@microsoft/api-extractor-model";
 import chalk from "chalk";
 import { groupByApiKind } from "./util.js";
 
@@ -21,6 +21,7 @@ export class ApiItemWrapper {
     public readonly typeAliases: ApiTypeAlias[];
     public readonly variables: ApiVariable[];
     public readonly functions: ApiFunction[];
+    public readonly methods: ApiMethod[];
     public readonly enums: ApiEnum[];
     public readonly others: ApiItem[];
 
@@ -49,6 +50,7 @@ export class ApiItemWrapper {
         this.variables = item.members.filter((i): i is ApiVariable => i.kind === ApiItemKind.Variable);
         this.functions = item.members.filter((i): i is ApiFunction => i.kind === ApiItemKind.Function);
         this.enums = item.members.filter((i): i is ApiEnum => i.kind === ApiItemKind.Enum);
+        this.methods = item.members.filter((i): i is ApiMethod => i.kind === ApiItemKind.Method);
         this.others = item.members.filter(i => !topLevelTypes.includes(i.kind))
     }
 
@@ -56,16 +58,19 @@ export class ApiItemWrapper {
         return this._groups;
     }
 
-    public find(name: string, kind?: ApiItemKind): ApiItem | undefined {
-        // console.log(chalk.yellow(`Searching ${this.members.length} members for ${name}`));
+    public find(name: string, kind?: ApiItemKind, log = false): ApiItem | undefined {
+        if (log) { console.log(chalk.grey(`Searching ${this.members.length} members for ${name}`)); }
+
         const results = this.members.filter((item) => item.displayName === name);
-        // console.log(chalk.yellow(`Found ${results.length} items when searching for ${name}`));
+
         if (results.length === 0) {
+            // if (log) { console.log(chalk.red(`Found ${results.length} items when searching for ${name}`)); }
             return undefined;
         }
-        // if (results.length > 1) {
-        //     console.log(chalk.yellow(`Found ${results.length} items when searching for ${name}`));
-        // }
+        if (log && results.length > 1) {
+            console.log(chalk.yellow(`Found ${results.length} items when searching for ${name}`));
+        }
+        if (log) { console.log(chalk.green(`Found ${results.length} items when searching for ${name}`)); }
         return results[0];
     }
 

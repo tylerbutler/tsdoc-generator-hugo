@@ -1,19 +1,20 @@
 import {
     ApiClass,
+    ApiConstructor,
     ApiDeclaredItem,
     ApiDocumentedItem, ApiInterface, ApiItem,
-    ApiItemKind, ApiModel, Excerpt, ExcerptTokenKind, TypeParameter
+    ApiItemKind, ApiMethod, ApiMethodSignature, ApiModel, ApiParameterListMixin, ApiReturnTypeMixin, ApiTypeParameterListMixin, Excerpt, ExcerptTokenKind, Parameter, TypeParameter
 } from "@microsoft/api-extractor-model";
 import {
-    DocBlock, StandardTags
+    DocBlock, DocComment, DocNode, DocParamBlock, StandardTags
 } from "@microsoft/tsdoc";
 import { Meaning } from "@microsoft/tsdoc/lib-commonjs/beta/DeclarationReference";
 import chalk from "chalk";
-import type { Code, Content, Heading, Link, Paragraph, PhrasingContent, Strong, Text } from "mdast";
+import type { Code, Content, Heading, Link, Paragraph, PhrasingContent, Strong, Table, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
 import { Emphasis } from "mdast-util-from-markdown/lib";
 import { ApiItemWrapper } from "./ApiModelWrapper.js";
-import { callout, docNodesToMdast, docNodeToMdast, hugoLinkForItem, _getLinkFilenameForApiItem } from "./mdNodes.js";
+import { callout, docNodesToMdast, docNodeToMdast, hugoLinkForItem, spacer, _getLinkFilenameForApiItem } from "./mdNodes.js";
 
 export async function getBreadcrumb(apiItem: ApiItem): Promise<Paragraph> {
     const output = md.paragraph([
@@ -39,26 +40,48 @@ export async function getBreadcrumb(apiItem: ApiItem): Promise<Paragraph> {
 
 export async function getSummary(apiItem: ApiItem, extendedSummary = false, withHeading = false): Promise<Paragraph> {
     const nodes: Content[] = [];
+    // let docComment: DocComment | DocParamBlock | undefined;
+    let docNodes: readonly DocNode[] | undefined;
 
-    if (apiItem instanceof ApiDocumentedItem) {
-        const tsdocComment = apiItem.tsdocComment;
-
-        if (tsdocComment) {
+    if (apiItem instanceof ApiDeclaredItem) {
+        // const tsdocComment = apiItem.tsdocComment;
+        const docComment = apiItem.tsdocComment;
+        if (docComment) {
             // if (tsdocComment.deprecatedBlock) {
             //     // console.log(chalk.red(`${apiItem.displayName} is deprecated!`))
             //     const block = tsdocComment.deprecatedBlock;
             //     nodes.push(callout("warning", "Deprecated", docNodesToMdast(block.getChildNodes())));
             // }
 
-            if (tsdocComment.summarySection) {
-                if (withHeading) {
-                    nodes.push(md.heading(4, md.text("Summary")) as Heading);
-                    nodes.push(md.text("\n\n") as Text);
-                }
-                const docNodes = extendedSummary ? tsdocComment.summarySection.nodes : tsdocComment.summarySection.nodes.slice(0, 1);
-                nodes.push(...docNodesToMdast(docNodes));
-                // console.log(`nodes for ${apiItem.displayName}: ${tsdocComment.summarySection.nodes.map(n => n.kind)}`);
+            if (docComment.summarySection) {
+                docNodes = extendedSummary ? docComment.summarySection.nodes : docComment.summarySection.nodes.slice(0, 1);
+            } else {
+                docNodes = [];
             }
+        }
+    }
+
+    if (docNodes && docNodes.length > 0) {
+        if (withHeading) {
+            nodes.push(md.heading(4, md.text("Summary")) as Heading);
+            nodes.push(spacer());
+        }
+        nodes.push(...docNodesToMdast(docNodes));
+    }
+    // console.log(`nodes for ${apiItem.displayName}: ${tsdocComment.summarySection.nodes.map(n => n.kind)}`);
+
+    return md.paragraph(nodes) as Paragraph;
+}
+
+export async function getParameterSummary(item: Parameter, extendedSummary = false): Promise<Paragraph> {
+    const nodes: Content[] = [];
+
+    if (item.tsdocParamBlock) {
+        const docComment = item.tsdocParamBlock.content;
+        const mdNodes = docNodeToMdast(docComment);
+        if (mdNodes) {
+            const summaryNodes = extendedSummary ? mdNodes : mdNodes?.slice(0, 1);
+            nodes.push(...summaryNodes);
         }
     }
     return md.paragraph(nodes) as Paragraph;
@@ -104,6 +127,26 @@ export async function getRemarks(apiItem: ApiItem): Promise<Paragraph> {
     return md.paragraph(nodes) as Paragraph;
 }
 
+export async function getReturn(apiItem: ApiDocumentedItem): Promise<Paragraph> {
+    const nodes: Content[] = [];
+    const tsdocComment = apiItem.tsdocComment;
+
+    if (tsdocComment) {
+        // Write the @returns block
+        if (tsdocComment.returnsBlock) {
+            nodes.push(md.paragraph([
+                spacer(),
+                md.strong(md.text("Returns:")),
+                md.text(" "),
+                ...docNodesToMdast(tsdocComment.returnsBlock.content.nodes),
+                spacer(),
+            ]) as Paragraph);
+        }
+    }
+    return md.paragraph(nodes) as Paragraph;
+}
+
+
 export async function getNotes(apiItem: ApiItem): Promise<Paragraph> {
     const nodes: Content[] = [];
     if (apiItem instanceof ApiDocumentedItem) {
@@ -125,10 +168,10 @@ export async function getSignature(item: ApiDeclaredItem): Promise<Paragraph> {
     const nodes: Content[] = [];
 
     nodes.push(md.strong(md.text("Signature:")) as Strong);
-    nodes.push(md.text("\n\n") as Text);
+    nodes.push(spacer());
 
     nodes.push(md.code("typescript", item.getExcerptWithModifiers()) as Code);
-    // nodes.push(md.text("\n\n") as Text);
+    nodes.push(spacer());
     return md.paragraph(nodes) as Paragraph;
 }
 
@@ -143,7 +186,7 @@ export async function getExtends(apiItem: ApiClass | ApiInterface, model?: ApiMo
                 md.strong(md.text("Extends:")),
                 md.text(" "),
                 ...excerpt,
-                md.text("\n\n"),
+                spacer(),
             ]) as Paragraph);
         }
 
@@ -162,7 +205,7 @@ export async function getExtends(apiItem: ApiClass | ApiInterface, model?: ApiMo
                 implementsParagraph.children.push(...excerpt);
                 needsComma = true;
             }
-            nodes.push(md.text("\n\n") as Text, implementsParagraph);
+            nodes.push(spacer(), implementsParagraph);
         }
     }
 
@@ -199,15 +242,56 @@ export async function getExtends(apiItem: ApiClass | ApiInterface, model?: ApiMo
     return md.paragraph(nodes) as Paragraph;
 }
 
-export async function getTypeParams(params: readonly TypeParameter[], excerpt?: Excerpt): Promise<void> {
+export async function getFunctionParameters(item: ApiParameterListMixin, model?: ApiModel): Promise<Paragraph> {
+    let wrapper: ApiItemWrapper | undefined;
+    const nodes: Content[] = [];
+    const table = md.table([null], []) as Table;
+    let description: Content | undefined;
+
+    // Headers are in the first row of table
+    table.children.push(md.tableRow([
+        md.tableCell([md.text("Parameter")]),
+        md.tableCell([md.text("Type")]),
+        md.tableCell([md.text("Description")]),
+        md.tableCell([md.text("Notes")])
+    ]) as TableRow);
+
+    if (model) {
+        wrapper = new ApiItemWrapper(model);
+    }
+
+    for (const p of item.parameters) {
+        // const [summary, notes] = await Promise.all([getSummary(p), getNotes(p)]);
+        const summary = await getParameterSummary(p);
+        const paramType = p.parameterTypeExcerpt.text;
+        const found = wrapper?.find(paramType, undefined, false);
+        if (found) {
+            description = hugoLinkForItem(paramType);
+        } else {
+            description = md.text(paramType) as Text;
+            // console.log(chalk.redBright())
+        }
+
+        table.children.push(md.tableRow([
+            md.tableCell([md.text(p.name)]),
+            md.tableCell([description]),
+            md.tableCell([summary]),
+            md.tableCell([]),
+        ]) as TableRow);
+    }
+    const classDecoration = md.text(`\n{.table .${item.kind.toLowerCase()}-table}\n`) as Text;
+    nodes.push(table, classDecoration, spacer());
+
+    return md.paragraph(nodes) as Paragraph;
 }
 
-export async function getFunctionParameters(): Promise<void> { }
-
+export async function getExcerptCodeBlock(excerpt: Excerpt, model?: ApiModel): Promise<Code> {
+    return md.code("typescript", excerpt.text) as Code;
+}
 
 export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model?: ApiModel): Promise<PhrasingContent[]> {
     const nodes: PhrasingContent[] = [];
-    console.log(chalk.yellowBright("TOKENS"));
+    const wrapper = model ? new ApiItemWrapper(model) : undefined;
 
     for (const token of excerpt.spannedTokens) {
         // Markdown doesn't provide a standardized syntax for hyperlinks inside code spans, so we will render
@@ -232,15 +316,14 @@ export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model?: ApiMod
             //     members.forEach(m => console.log(chalk.cyanBright(m.displayName)));
             // }
 
-            if (name && model && (meaning === Meaning.Class || meaning === Meaning.Interface)) {
-                console.log(chalk.green("ENTER"))
-                const wrapper = new ApiItemWrapper(model);
-                const found = wrapper.find(name, ApiItemKind.Interface);
+            if (name && wrapper && (meaning === Meaning.Class || meaning === Meaning.Interface)) {
+                // console.log(chalk.green("ENTER"))
+                const found = wrapper.find(name);
                 if (found) {
                     nodes.push(hugoLinkForItem(name));
                 } else {
                     nodes.push(md.text(name) as Text);
-                    console.log(chalk.yellow(`Not found: ${name}`));
+                    // console.log(chalk.yellow(`Not found: ${name}`));
                 }
             }
         } else {

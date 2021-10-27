@@ -30,19 +30,23 @@ export function callout(type: string, title?: string, children?: Content[]): Par
     if (title) {
         opener.push(md.text(` ${title} `));
     }
-    opener.push(md.text(` %}}\n\n`))
+    opener.push(md.text(` %}}`));
+    opener.push(spacer());
 
     const content = [...opener];
     if (children) {
         content.push(...children);
     }
 
-    content.push(md.text("\n\n"));
-    content.push(md.text(`{{% /callout %}}\n\n`));
+    content.push(spacer());
+    content.push(md.text(`{{% /callout %}}`));
+    content.push(spacer());
 
     const output = md.paragraph(content) as Paragraph;
     return output;
 }
+
+export const spacer = () => md.text("\n\n") as Text;
 
 export function hugoLinkForItem(item: string, linkText?: string): Link {
     if (!linkText) { linkText = item; }
