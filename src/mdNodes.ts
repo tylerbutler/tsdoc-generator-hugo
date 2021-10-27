@@ -1,3 +1,4 @@
+import { ApiItem, ApiItemKind, ApiModel, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
 import {
     DocBlockTag,
     DocCodeSpan,
@@ -15,10 +16,12 @@ import {
     DocPlainText,
     DocSection
 } from "@microsoft/tsdoc";
+import { PackageName } from "@rushstack/node-core-library";
 import chalk from "chalk";
 import type { Break, Code, Content, HTML, InlineCode, Link, Paragraph, Text } from "mdast";
 import * as md from "mdast-builder";
 import { fromMarkdown } from "mdast-util-from-markdown";
+import { getSafeFilenameForName } from "./util.js";
 
 export function callout(type: string, title?: string, children?: Content[]): Paragraph {
     const opener = [
@@ -41,11 +44,21 @@ export function callout(type: string, title?: string, children?: Content[]): Par
     return output;
 }
 
-export function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
+export function hugoLinkForItem(item: string, linkText?: string): Link {
+    if (!linkText) { linkText = item; }
+    return hugoLink(linkText, `${item.toLowerCase()}.md`);
+}
+
+export function hugoLink(linkText: string, apiRef: string, title?: string): Link {
+    const link = md.link(apiRef, title, md.text(linkText)) as Link;
+    return link;
+}
+
+export function docNodesToMdast(nodes: readonly DocNode[], model?: ApiModel): Content[] {
     const res = nodes
         // .filter(n=>docNodeToMdast(n) !== undefined)
         .flatMap((n) => {
-            const mdast = docNodeToMdast(n);
+            const mdast = docNodeToMdast(n, model);
             if (mdast !== undefined) {
                 return mdast;
             }
@@ -54,7 +67,7 @@ export function docNodesToMdast(nodes: readonly DocNode[]): Content[] {
     return res;
 }
 
-export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
+export function docNodeToMdast(docNode: DocNode, model?: ApiModel): Content[] | undefined {
     // console.log(chalk.greenBright(docNode.kind));
     // console.log(chalk.greenBright(docNode));
 
@@ -88,7 +101,10 @@ export function docNodeToMdast(docNode: DocNode): Content[] | undefined {
         case DocNodeKind.LinkTag:
             const docLinkTag = docNode as DocLinkTag;
             if (docLinkTag.codeDestination) {
-                throw new Error("writeLinkTagWithCodeDestination()");
+                console.log(chalk.red(docLinkTag.linkText, docLinkTag.tagName, docLinkTag.codeDestination.getChildNodes()));
+                const link = linkTagWithCodeDestination(docLinkTag, model)
+                return [link];
+                // throw new Error("writeLinkTagWithCodeDestination()");
             } else if (docLinkTag.urlDestination) {
                 const linkText: string =
                     docLinkTag.linkText !== undefined ? docLinkTag.linkText : docLinkTag.urlDestination;
@@ -121,4 +137,87 @@ function plainTextToMdast(docNode: DocPlainText): Content[] {
     // console.log(chalk.bgBlue(docPlainText.text));
     const toReturn = fromMarkdown(docPlainText.text);
     return toReturn.children;
+}
+
+function linkTagWithCodeDestination(
+    docLinkTag: DocLinkTag,
+    // context: IMarkdownEmitterContext<ICustomMarkdownEmitterOptions>,
+    model?: ApiModel
+): Link | Text {
+    const ref: IResolveDeclarationReferenceResult | undefined = model?.resolveDeclarationReference(
+        docLinkTag.codeDestination!,
+        // options.contextApiItem,
+        undefined,
+    );
+
+    if (ref && ref.resolvedApiItem) {
+        // if(hasStandalonePage(ref.resolvedApiItem))
+        const filename: string | undefined = _getFilenameForApiItem(ref.resolvedApiItem);
+        let linkText: string = docLinkTag.linkText || "";
+
+        if (linkText.length === 0) {
+            // Generate a name such as Namespace1.Namespace2.MyClass.myMethod()
+            linkText = ref.resolvedApiItem.getScopedNameWithinPackage();
+        }
+
+        if (linkText.length > 0) {
+            // const encodedLinkText: string = linkText.replace(/\s+/g, ' ');
+            return hugoLink(linkText, `${filename ? filename + '.md' : ''}#${ref.resolvedApiItem.displayName.toLowerCase()}`);
+        } else {
+            console.log(chalk.yellow("WARNING: Unable to determine link text"));
+        }
+    } else if (ref?.errorMessage) {
+        console.log(
+            chalk.yellow(
+                `WARNING: Unable to resolve reference "${docLinkTag.codeDestination!.emitAsTsdoc()}": ` +
+                ref.errorMessage
+            )
+        );
+    }
+    return md.text("") as Text;
+}
+
+export function _getFilenameForApiItem(item: ApiItem): string | undefined {
+    if (!hasStandalonePage(item)) {
+        // throw new Error(`Can't process item of kind: ${item.kind}`);
+        return undefined;
+    }
+
+    if (item.kind === ApiItemKind.Model) {
+        return "index.md";
+    }
+
+    let baseName = "";
+    for (const hierarchyItem of item.getHierarchy()) {
+        // For overloaded methods, add a suffix such as "MyClass.myMethod_2".
+        let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);
+        if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
+            // eslint-disable-next-line unicorn/no-lonely-if
+            if (hierarchyItem.overloadIndex > 1) {
+                // Subtract one for compatibility with earlier releases of API Documenter.
+                // (This will get revamped when we fix GitHub issue #1308)
+                qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
+            }
+        }
+
+        switch (hierarchyItem.kind) {
+            case ApiItemKind.EntryPoint:
+                break;
+            case ApiItemKind.Package:
+                baseName = getSafeFilenameForName(PackageName.getUnscopedName(hierarchyItem.displayName));
+                break;
+            default:
+                baseName += '.' + qualifiedName;
+        }
+    }
+    return baseName + '.md';
+}
+
+export function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
+    return './' + _getFilenameForApiItem(apiItem);
+}
+
+export function hasStandalonePage(item: ApiItem) {
+    const isPage = [ApiItemKind.Class, ApiItemKind.Interface, ApiItemKind.Package].includes(item.kind);
+    return isPage;
 }

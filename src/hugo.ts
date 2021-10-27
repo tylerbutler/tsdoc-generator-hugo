@@ -84,10 +84,6 @@ const toMd = (r: Root): string => {
 
 
 // export type InlineKinds = ApiItemKind.Variable | ApiItemKind.
-export const PageKind = (item: ApiItem) => {
-    const isPage = [ApiItemKind.Class, ApiItemKind.Interface].includes(item.kind);
-    return isPage ? "Page" : "Inline";
-}
 export class FrontMatter {
     public title: string = "";
     public kind: ApiItemKind = ApiItemKind.None;
@@ -196,7 +192,7 @@ export class HugoDocumenter {
     }
 
     public generateFiles(): void {
-        console.log();
+        // console.log();
         fs.ensureEmptyFolder(this._outputPath);
 
         this._loadApiFiles(this._inputPath, this._apiModel);
@@ -204,12 +200,12 @@ export class HugoDocumenter {
             throw new Error(`Expected a Model, got a: ${this._apiModel.kind}`);
         }
         for (const pkg of this._apiModel.members) {
-            WriteApiFiles(pkg, 0, this._outputPath);
+            WriteApiFiles(pkg, 0, this._outputPath, this._apiModel);
         }
     }
 }
 
-async function WriteApiFiles(model: ApiItem, level: number, outputPath: string): Promise<void> {
+async function WriteApiFiles(item: ApiItem, level: number, outputPath: string, model?: ApiModel): Promise<void> {
     let tree: Root = md.root() as Root;
     let classPages: MdOutputPage[] | undefined;
     let interfacePages: MdOutputPage[] | undefined;
@@ -217,21 +213,20 @@ async function WriteApiFiles(model: ApiItem, level: number, outputPath: string):
     const indent = level.toString().repeat(level);
 
     console.log(
-        chalk.blueBright(`${indent}${model.kind} - ${model.displayName} - ${model.members.length} members`)
+        chalk.blueBright(`${indent}${item.kind} - ${item.displayName} - ${item.members.length} members`)
     );
 
-    switch (model.kind) {
+    switch (item.kind) {
         case ApiItemKind.Package:
-            console.log(`Writing package: ${model.displayName}`);
-            [tree, classPages, interfacePages] = await GeneratePackageMdast(model as ApiPackage);
+            console.log(`Writing package: ${item.displayName}`);
+            [tree, classPages, interfacePages] = await GeneratePackageMdast(item as ApiPackage, model);
             break;
-        case ApiItemKind.Model:
         default:
-            throw new Error(`Cannot handle ApiItemKind.${model.kind}`);
+            throw new Error(`Cannot handle ApiItemKind.${item.kind}`);
     }
 
-    console.log(toMd(tree));
-    FileSystem.writeFile(path.join(outputPath, PackageName.getUnscopedName(model.displayName) + ".md"), toMd(tree));
+    // console.log(toMd(tree));
+    FileSystem.writeFile(path.join(outputPath, PackageName.getUnscopedName(item.displayName) + ".md"), toMd(tree));
 
     if (classPages) {
         WriteSubpages(classPages, outputPath);
@@ -255,7 +250,7 @@ async function WriteApiFiles(model: ApiItem, level: number, outputPath: string):
 function WriteSubpages(pages: MdOutputPage[], outputPath: string) {
     for (const page of pages) {
         const content = toMd(page.mdast);
-        console.log(content);
+        // console.log(content);
         const pkg = page.item.getAssociatedPackage();
         const unscopedName = pkg ? PackageName.getUnscopedName(pkg.displayName).toLowerCase() : "_unknown";
         const targetPath = path.join(outputPath, unscopedName);

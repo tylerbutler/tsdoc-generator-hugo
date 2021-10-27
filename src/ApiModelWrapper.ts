@@ -1,4 +1,5 @@
 import { ApiClass, ApiConstructor, ApiEnum, ApiFunction, ApiInterface, ApiItem, ApiItemKind, ApiModel, ApiTypeAlias, ApiVariable } from "@microsoft/api-extractor-model";
+import chalk from "chalk";
 import { groupByApiKind } from "./util.js";
 
 const topLevelTypes = [
@@ -12,6 +13,7 @@ const topLevelTypes = [
 ];
 
 export class ApiItemWrapper {
+    private readonly members: ApiItem[];
     private readonly _groups: Map<ApiItemKind, ApiItem[]>;
     public readonly constructors: ApiConstructor[];
     public readonly classes: ApiClass[];
@@ -22,8 +24,22 @@ export class ApiItemWrapper {
     public readonly enums: ApiEnum[];
     public readonly others: ApiItem[];
 
-    constructor(public readonly item: ApiItem) {
-        this._groups = groupByApiKind(item.members);
+    constructor(public readonly item: ApiItem | ApiModel) {
+        if (item.kind === ApiItemKind.Model) {
+            const model = item as ApiModel;
+            this.members = [];
+
+            for (const pkg of model.packages) {
+                const entrypoint = pkg.members[0];
+                this.members.push(...entrypoint.members);
+            }
+        } else {
+            this.members = [...item.members];
+        }
+
+        // console.log(this.members.map(m => m.displayName));
+
+        this._groups = groupByApiKind(this.members);
 
         // this.constructors = filter(item, subclass f, ApiItemKind.Constructor);
         this.constructors = item.members.filter((i): i is ApiConstructor => i.kind === ApiItemKind.Constructor);
@@ -38,6 +54,19 @@ export class ApiItemWrapper {
 
     public get groups() {
         return this._groups;
+    }
+
+    public find(name: string, kind?: ApiItemKind): ApiItem | undefined {
+        // console.log(chalk.yellow(`Searching ${this.members.length} members for ${name}`));
+        const results = this.members.filter((item) => item.displayName === name);
+        // console.log(chalk.yellow(`Found ${results.length} items when searching for ${name}`));
+        if (results.length === 0) {
+            return undefined;
+        }
+        // if (results.length > 1) {
+        //     console.log(chalk.yellow(`Found ${results.length} items when searching for ${name}`));
+        // }
+        return results[0];
     }
 
     // public get(index: ApiItemKind): ApiItem[] {

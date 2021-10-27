@@ -7,7 +7,7 @@ import {
     ApiFunction,
     ApiInterface,
     ApiItem,
-    ApiItemKind, ApiNameMixin, ApiPackage, ApiTypeAlias,
+    ApiItemKind, ApiModel, ApiNameMixin, ApiPackage, ApiTypeAlias,
     ApiVariable
 } from "@microsoft/api-extractor-model";
 import chalk from "chalk";
@@ -24,7 +24,7 @@ import { MdOutputPage } from "./types.js";
  * @param outputPath
  * @returns A tuple of the MDAST for the current item, and an array of MDAST for any other items that were generated.
  */
-export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdOutputPage[] | undefined, MdOutputPage[] | undefined]> {
+export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): Promise<[Root, MdOutputPage[] | undefined, MdOutputPage[] | undefined]> {
     if (![ApiItemKind.Package, ApiItemKind.Class].includes(item.kind)) {
         throw new Error(`Expected a Package/Class, got a: ${item.kind}`);
     }
@@ -38,7 +38,7 @@ export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdO
     const heading = md.heading(1, md.text(item.displayName)) as Heading;
     const [breadcrumb, summary, remarks] = await Promise.all([
         getBreadcrumb(entrypoint),
-        getSummary(item),
+        getSummary(item, true),
         getRemarks(item)
     ]);
     tree.children.push(heading, breadcrumb, summary, remarks);
@@ -73,7 +73,7 @@ export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdO
         tree.children.push(await GenerateTable(interfaces));
 
         interfacePages = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
-            const ast = await GenerateClassMdast(i);
+            const ast = await GenerateClassMdast(i, model);
             return {
                 mdast: ast,
                 item: i,
@@ -90,14 +90,14 @@ export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdO
         tree.children.push(await GenerateTable(classes));
 
         classPages = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
-            const ast = await GenerateClassMdast(i);
+            const ast = await GenerateClassMdast(i, model);
             return {
                 mdast: ast,
                 item: i,
             }
         }));
         // otherPages.push(Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
-        //     const ast = await GenerateClassMdast(i);
+        //     const ast = await GenerateClassMdast(i, model);
         //     return {
         //         mdast: ast,
         //         item: i,
@@ -136,7 +136,7 @@ export async function GeneratePackageMdast(item: ApiPackage): Promise<[Root, MdO
     return [tree, await classPages, await interfacePages];
 }
 
-export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise<Root> {
+export async function GenerateClassMdast(item: ApiClass | ApiInterface, model?: ApiModel): Promise<Root> {
     if (![ApiItemKind.Class, ApiItemKind.Interface].includes(item.kind)) {
         throw new Error(`Expected a Class or Interface, got a: ${item.kind}`);
     }
@@ -146,7 +146,7 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise
     // const heading = md.heading(1, md.text(item.displayName)) as Heading;
     const [breadcrumb, summary, signature, remarks] = await Promise.all([
         getBreadcrumb(item),
-        getSummary(item),
+        getSummary(item, true),
         getRemarks(item),
         getSignature(item),
     ]);
@@ -173,7 +173,7 @@ export async function GenerateClassMdast(item: ApiClass | ApiInterface): Promise
         }
     }
 
-    tree.children.push(await getExtends(item));
+    tree.children.push(await getExtends(item, model));
 
     return tree;
 }
@@ -195,7 +195,7 @@ async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstru
     if (item.tsdocComment) {
         const results = await Promise.all<Content>([
             getDeprecatedCallout(item as ApiDocumentedItem),
-            getSummary(item),
+            getSummary(item, true),
             getRemarks(item)
         ]);
 
