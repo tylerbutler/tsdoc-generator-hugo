@@ -138,13 +138,25 @@ export function docNodeToMdast(docNode: DocNode, model?: ApiModel): Content[] | 
     }
 }
 
-export function linkIfFound(wrapper: ApiItemWrapper, searchString: string, kind?: ApiItemKind): Link | Text {
+export function linkIfFound(wrapper: ApiItemWrapper | undefined, searchString: string, kind?: ApiItemKind): Link | Text {
+    if (!wrapper) { return md.text(searchString) as Text; }
     const found = wrapper.find(searchString, kind, false);
     if (found) {
         return hugoLinkForItem(searchString);
     } else {
         return md.text(searchString) as Text;
         // console.log(chalk.redBright())
+    }
+}
+
+export function linkItem(wrapper: ApiItemWrapper | undefined, item: ApiItem, kind?: ApiItemKind): Link | Text {
+    const link = _getLinkFilenameForApiItem(item);
+    if (hasStandalonePage(item)) {
+        if (!wrapper) { return md.text(item.displayName) as Text; }
+
+        return hugoLink(item.displayName, link);
+    } else {
+        return hugoLink(item.displayName, "#" + item.displayName.toLowerCase());
     }
 }
 
@@ -255,4 +267,9 @@ export function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
 export function hasStandalonePage(item: ApiItem) {
     const isPage = [ApiItemKind.Class, ApiItemKind.Interface, ApiItemKind.Package].includes(item.kind);
     return isPage;
+}
+
+export function hasType(item: ApiItem) {
+    const hasType = [ApiItemKind.Property, ApiItemKind.Variable].includes(item.kind);
+    return hasType;
 }

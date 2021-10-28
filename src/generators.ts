@@ -11,10 +11,10 @@ import {
     ApiVariable
 } from "@microsoft/api-extractor-model";
 import chalk from "chalk";
-import type { Content, Heading, Paragraph, Root, Table, TableRow, Text } from "mdast";
+import type { Content, Heading, Paragraph, Root, Table, TableCell, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
 import { ApiItemWrapper } from "./ApiModelWrapper.js";
-import { spacer } from "./mdNodes.js";
+import { hasType, linkIfFound, linkItem, spacer } from "./mdNodes.js";
 import { getBreadcrumb, getDeprecatedCallout, getExtends, getFunctionParameters, getNotes, getRemarks, getReturn, getSignature, getSummary } from "./sections.js";
 import { MdOutputPage } from "./types.js";
 
@@ -61,7 +61,7 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
     if (variables.length > 0) {
         tree.children.push(md.heading(2, [md.text("Variables")]) as Heading);
         if (variables.length > 5) {
-            tree.children.push(await GenerateTable(variables));
+            tree.children.push(await GenerateTable(variables, model));
         }
 
         for (const subItem of variables) {
@@ -73,7 +73,7 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
     let interfacePages: Promise<MdOutputPage[]> | undefined;
     if (interfaces.length > 0) {
         tree.children.push(md.heading(2, [md.text("Interfaces")]) as Heading);
-        tree.children.push(await GenerateTable(interfaces));
+        tree.children.push(await GenerateTable(interfaces, model));
 
         interfacePages = Promise.all(interfaces.map(async (i): Promise<MdOutputPage> => {
             const ast = await GenerateClassMdast(i, model);
@@ -90,7 +90,7 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
     let classPages: Promise<MdOutputPage[]> | undefined;
     if (classes.length > 0) {
         tree.children.push(md.heading(2, [md.text("Classes")]) as Heading);
-        tree.children.push(await GenerateTable(classes));
+        tree.children.push(await GenerateTable(classes, model));
 
         classPages = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
             const ast = await GenerateClassMdast(i, model);
@@ -120,12 +120,12 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
 
     if (enums.length > 0) {
         tree.children.push(md.paragraph([md.heading(2, [md.text("Enums")])]) as Paragraph);
-        tree.children.push(await GenerateTable(enums));
+        tree.children.push(await GenerateTable(enums, model));
     }
 
     if (functions.length > 0) {
         tree.children.push(md.heading(2, [md.text("Functions")]) as Heading);
-        tree.children.push(await GenerateTable(functions));
+        tree.children.push(await GenerateTable(functions, model));
     }
 
     // console.log(tree);
@@ -231,14 +231,18 @@ async function GenerateItemSection(item: ApiVariable | ApiTypeAlias | ApiConstru
     return md.paragraph(nodes) as Paragraph;
 }
 
-async function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable | ApiClass | ApiInterface | ApiTypeAlias)[]): Promise<Paragraph> {
+async function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable | ApiClass | ApiInterface | ApiTypeAlias)[], model?: ApiModel): Promise<Paragraph> {
     const table = md.table([null], []) as Table;
+
+    const wrapper = model ? new ApiItemWrapper(model) : undefined;
 
     let kind: ApiItemKind = ApiItemKind.Enum;
     let typeExcerpt = (item: ApiItem) => "";
+    let hasTypeColumn = false;
 
     if (items.length > 0) {
         kind = items[0].kind;
+        hasTypeColumn = hasType(items[0]);
         if (items[0] instanceof ApiFunction) {
             typeExcerpt = (item: ApiItem) => (item as ApiFunction).returnTypeExcerpt.text;
         } else if (items[0] instanceof ApiVariable) {
@@ -248,25 +252,38 @@ async function GenerateTable(items: (ApiFunction | ApiEnum | ApiVariable | ApiCl
         }
     }
 
-    // Headers are in the first row of table
-    table.children.push(md.tableRow([
+    const headerCells = [
         md.tableCell([md.text(kind.toString())]),
         md.tableCell([md.text("Type")]),
         md.tableCell([md.text("Description")]),
         md.tableCell([md.text("Notes")])
-    ]) as TableRow);
+    ] as TableCell[];
+
+    if (!hasTypeColumn) {
+        // remove the type column
+        headerCells.splice(1, 1);
+    }
+
+    // Headers are in the first row of table
+    table.children.push(md.tableRow(headerCells) as TableRow);
 
     for (const item of items) {
         const [summary, notes] = await Promise.all([getSummary(item), getNotes(item)]);
         // const summary = getSummary(item);
         // // const remarks = getRemarks(item);
         // const notes = getNotes(item);
-        table.children.push(md.tableRow([
-            md.tableCell([md.text(item.name)]),
+        const cells = [
+            md.tableCell([linkItem(wrapper, item)]),
             md.tableCell([md.text(typeExcerpt(item))]),
             md.tableCell([summary]),
             md.tableCell([notes])
-        ]) as TableRow);
+        ] as TableCell[];
+
+        if (!hasTypeColumn) {
+            cells.splice(1, 1);
+        }
+
+        table.children.push(md.tableRow(cells) as TableRow);
     }
 
     const classDecoration = md.text(`\n{.table .${kind.toLowerCase()}-table}\n`)
