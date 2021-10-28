@@ -21,6 +21,9 @@ import chalk from "chalk";
 import type { Break, Code, Content, HTML, InlineCode, Link, Paragraph, Text } from "mdast";
 import * as md from "mdast-builder";
 import { fromMarkdown } from "mdast-util-from-markdown";
+import path from "path";
+import { describe } from "yargs";
+import { ApiItemWrapper } from "./ApiModelWrapper.js";
 import { getSafeFilenameForName } from "./util.js";
 
 export function callout(type: string, title?: string, children?: Content[]): Paragraph {
@@ -135,6 +138,16 @@ export function docNodeToMdast(docNode: DocNode, model?: ApiModel): Content[] | 
     }
 }
 
+export function linkIfFound(wrapper: ApiItemWrapper, searchString: string, kind?: ApiItemKind): Link | Text {
+    const found = wrapper.find(searchString, kind, false);
+    if (found) {
+        return hugoLinkForItem(searchString);
+    } else {
+        return md.text(searchString) as Text;
+        // console.log(chalk.redBright())
+    }
+}
+
 function plainTextToMdast(docNode: DocPlainText): Content[] {
     // const content:Content[] = [];
     const docPlainText = docNode as DocPlainText;
@@ -187,38 +200,56 @@ export function _getFilenameForApiItem(item: ApiItem): string | undefined {
         return undefined;
     }
 
-    if (item.kind === ApiItemKind.Model) {
-        return "index.md";
-    }
+    // if (item.kind === ApiItemKind.Model) {
+    //     return "index.md";
+    // }
 
     let baseName = "";
+
+    // if (item.displayName === "AzureAudience") {
+    //     console.log(chalk.white(`baseName: ${baseName}, kind: ${""}`));
+    // }
+
     for (const hierarchyItem of item.getHierarchy()) {
         // For overloaded methods, add a suffix such as "MyClass.myMethod_2".
-        let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);
-        if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
-            // eslint-disable-next-line unicorn/no-lonely-if
-            if (hierarchyItem.overloadIndex > 1) {
-                // Subtract one for compatibility with earlier releases of API Documenter.
-                // (This will get revamped when we fix GitHub issue #1308)
-                qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
-            }
-        }
+        // let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);
+        // if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
+        //     if (hierarchyItem.overloadIndex > 1) {
+        //         // Subtract one for compatibility with earlier releases of API Documenter.
+        //         // (This will get revamped when we fix GitHub issue #1308)
+        //         qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
+        //     }
+        // }
 
         switch (hierarchyItem.kind) {
-            case ApiItemKind.EntryPoint:
+            case ApiItemKind.Class:
+            case ApiItemKind.Interface:
+                // console.log(`class/interface: ${hierarchyItem.displayName}`);
+                baseName += "/" + hierarchyItem.displayName.toLowerCase();
                 break;
             case ApiItemKind.Package:
-                baseName = getSafeFilenameForName(PackageName.getUnscopedName(hierarchyItem.displayName));
+                baseName += "/" + PackageName.getUnscopedName(hierarchyItem.displayName);
                 break;
+            case ApiItemKind.EntryPoint:
             default:
-                baseName += '.' + qualifiedName;
+                // baseName += "/" + baseName;
+                break;
         }
+
+        // if (item.displayName === "AzureAudience") {
+        //     console.log(chalk.white(`baseName: ${baseName}, kind: ${hierarchyItem.kind}`));
+        // }
     }
+    // if (item.displayName === "AzureAudience") {
+    //     console.log(chalk.white(`filename for ${item.displayName}: ${baseName}.md`))
+    // }
     return baseName + '.md';
 }
 
 export function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
-    return './' + _getFilenameForApiItem(apiItem);
+    // return './' + _getFilenameForApiItem(apiItem);
+    const filename = _getFilenameForApiItem(apiItem) ?? "index.md";
+    return "/docs/apis" + filename;
 }
 
 export function hasStandalonePage(item: ApiItem) {

@@ -14,15 +14,19 @@ import type { Code, Content, Heading, Link, Paragraph, PhrasingContent, Strong, 
 import * as md from "mdast-builder";
 import { Emphasis } from "mdast-util-from-markdown/lib";
 import { ApiItemWrapper } from "./ApiModelWrapper.js";
-import { callout, docNodesToMdast, docNodeToMdast, hugoLinkForItem, spacer, _getLinkFilenameForApiItem } from "./mdNodes.js";
+import { callout, docNodesToMdast, docNodeToMdast, hasStandalonePage, hugoLinkForItem, linkIfFound, spacer, _getLinkFilenameForApiItem } from "./mdNodes.js";
 
-export async function getBreadcrumb(apiItem: ApiItem): Promise<Paragraph> {
+export async function getBreadcrumb(item: ApiItem): Promise<Paragraph> {
+    const separator = () => md.text(" > ") as Text;
+
+    if (hasStandalonePage(item)) {
+    }
     const output = md.paragraph([
-        md.link(_getLinkFilenameForApiItem(apiItem), "Home", [md.text("Home")]),
-        md.text(" > "),
+        md.link("/docs/apis/index.md", "Packages", [md.text("Packages")]),
+        separator(),
     ]) as Paragraph;
 
-    for (const hierarchyItem of apiItem.getHierarchy()) {
+    for (const hierarchyItem of item.getHierarchy()) {
         // console.log(chalk.red(`hierarchyItem: ${hierarchyItem.kind} ${hierarchyItem}`));
         switch (hierarchyItem.kind) {
             case ApiItemKind.Model:
@@ -31,10 +35,14 @@ export async function getBreadcrumb(apiItem: ApiItem): Promise<Paragraph> {
                 // We don't show the entry point because today API Extractor doesn"t support multiple entry points;
                 // this may change in the future.
                 break;
+            // case ApiItemKind.Package:
+            //     console.log("Got a package");
             default:
-                output.children.push(md.link(_getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName, [md.text(hierarchyItem.displayName)]) as Link);
+                const link = md.link(_getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName, [md.text(hierarchyItem.displayName)]) as Link;
+                output.children.push(link, separator());
         }
     }
+    output.children.pop(); // remove the last item since it's a separator
     return output;
 }
 
@@ -264,13 +272,19 @@ export async function getFunctionParameters(item: ApiParameterListMixin, model?:
         // const [summary, notes] = await Promise.all([getSummary(p), getNotes(p)]);
         const summary = await getParameterSummary(p);
         const paramType = p.parameterTypeExcerpt.text;
-        const found = wrapper?.find(paramType, undefined, false);
-        if (found) {
-            description = hugoLinkForItem(paramType);
+        if (wrapper) {
+            description = linkIfFound(wrapper, paramType);
         } else {
             description = md.text(paramType) as Text;
             // console.log(chalk.redBright())
         }
+        // const found = wrapper?.find(paramType, undefined, false);
+        // if (found) {
+        //     description = hugoLinkForItem(paramType);
+        // } else {
+        //     description = md.text(paramType) as Text;
+        //     // console.log(chalk.redBright())
+        // }
 
         table.children.push(md.tableRow([
             md.tableCell([md.text(p.name)]),
@@ -300,31 +314,17 @@ export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model?: ApiMod
         const unwrappedTokenText: string = token.text;//.replace(/[\r\n]+/g, ' ');
         console.log(chalk.yellowBright(unwrappedTokenText));
 
-        // If it's hyperlinkable, then append a DocLinkTag
+        // If it's hyperlinkable, then append a link
         if (token.kind === ExcerptTokenKind.Reference) {
-            // console.log(chalk.yellowBright("  is a reference..."));
-
             const symbol = token.canonicalReference?.symbol;
             const meaning = symbol?.meaning;
             const name = symbol?.componentPath?.toString();
 
             console.log(chalk.cyan(`  ${name} -- ${meaning}`));
 
-            // if (name && model) {
-            //     const wrapper = new ApiItemWrapper(model);
-            //     const members = model.findMembersByName(name);
-            //     members.forEach(m => console.log(chalk.cyanBright(m.displayName)));
-            // }
-
             if (name && wrapper && (meaning === Meaning.Class || meaning === Meaning.Interface)) {
-                // console.log(chalk.green("ENTER"))
-                const found = wrapper.find(name);
-                if (found) {
-                    nodes.push(hugoLinkForItem(name));
-                } else {
-                    nodes.push(md.text(name) as Text);
-                    // console.log(chalk.yellow(`Not found: ${name}`));
-                }
+                const link = linkIfFound(wrapper, name);
+                nodes.push(link);
             }
         } else {
             nodes.push(md.text(unwrappedTokenText) as Text);

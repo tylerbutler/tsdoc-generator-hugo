@@ -75,7 +75,7 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
         tree.children.push(md.heading(2, [md.text("Interfaces")]) as Heading);
         tree.children.push(await GenerateTable(interfaces));
 
-        interfacePages = Promise.all(classes.map(async (i): Promise<MdOutputPage> => {
+        interfacePages = Promise.all(interfaces.map(async (i): Promise<MdOutputPage> => {
             const ast = await GenerateClassMdast(i, model);
             return {
                 mdast: ast,
@@ -140,6 +140,7 @@ export async function GeneratePackageMdast(item: ApiPackage, model?: ApiModel): 
 }
 
 export async function GenerateClassMdast(item: ApiClass | ApiInterface, model?: ApiModel): Promise<Root> {
+    console.log(`GenerateClassMdast called for ${item.displayName}`);
     if (![ApiItemKind.Class, ApiItemKind.Interface].includes(item.kind)) {
         throw new Error(`Expected a Class or Interface, got a: ${item.kind}`);
     }
