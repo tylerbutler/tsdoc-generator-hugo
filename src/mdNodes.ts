@@ -1,4 +1,4 @@
-import { ApiItem, ApiItemKind, ApiModel, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
+import { ApiItem, ApiItemKind, ApiModel, ApiPackage, ApiParameterListMixin, IResolveDeclarationReferenceResult } from "@microsoft/api-extractor-model";
 import {
     DocBlockTag,
     DocCodeSpan,
@@ -23,7 +23,7 @@ import type { Break, Code, Content, HTML, InlineCode, Link, Paragraph, Text } fr
 import * as md from "mdast-builder";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toMarkdown } from "mdast-util-to-markdown";
-import path from "path";
+import path from "path/posix";
 import { describe } from "yargs";
 import { ApiModelWrapper } from "./ApiModelWrapper.js";
 import { DocumenterConfig } from "./DocumenterConfig.js";
@@ -190,14 +190,15 @@ export function linkIfFound(wrapper: ApiModelWrapper, searchString: string, conf
     }
 }
 
-export function linkItem(wrapper: ApiModelWrapper, item: ApiItem, config: DocumenterConfig): Link | Text {
+export function linkItem(wrapper: ApiModelWrapper | undefined, item: ApiItem, config: DocumenterConfig): Link | Text {
     const filename = _getFilenameForApiItem(item);
+    const filePath = path.join(config.uriRoot ?? "/", filename);
     if (hasStandalonePage(item)) {
         if (!wrapper) { return md.text(item.displayName) as Text; }
 
-        return hugoLink(item.displayName, config.uriRoot + (filename ?? "index.md"));
+        return hugoLink(item.displayName, filePath);
     } else {
-        return hugoLink(item.displayName, config.uriRoot + filename + "#" + item.displayName.toLowerCase());
+        return hugoLink(item.displayName, filePath + "#" + item.displayName.toLowerCase());
     }
 }
 
@@ -253,46 +254,45 @@ export function _getFilenameForApiItem(item: ApiItem): string {
     //     return undefined;
     // }
 
-    // if (item.kind === ApiItemKind.Model) {
-    //     return "index.md";
-    // }
-
+    // let pkg: ApiPackage;
     let baseName = "";
+
+    if (item.kind === ApiItemKind.Package) {
+        baseName = item.displayName.toLowerCase();
+    } else {
+        const pkg = item.getAssociatedPackage();
+        baseName = pkg !== undefined ? pkg.displayName.toLowerCase() : "";
+    }
+
+
+    if (hasStandalonePage(item) && item.kind !== ApiItemKind.Package) {
+        baseName = path.posix.join(baseName, PackageName.getUnscopedName(item.displayName));
+    }
 
     // if (item.displayName === "AzureAudience") {
     //     console.log(chalk.white(`baseName: ${baseName}, kind: ${""}`));
     // }
 
-    for (const hierarchyItem of item.getHierarchy()) {
-        // For overloaded methods, add a suffix such as "MyClass.myMethod_2".
-        // let qualifiedName: string = getSafeFilenameForName(hierarchyItem.displayName);
-        // if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
-        //     if (hierarchyItem.overloadIndex > 1) {
-        //         // Subtract one for compatibility with earlier releases of API Documenter.
-        //         // (This will get revamped when we fix GitHub issue #1308)
-        //         qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
-        //     }
-        // }
+    // for (const hierarchyItem of item.getHierarchy()) {
+    //     switch (hierarchyItem.kind) {
+    //         case ApiItemKind.Class:
+    //         case ApiItemKind.Interface:
+    //             // console.log(`class/interface: ${hierarchyItem.displayName}`);
+    //             baseName += "/" + hierarchyItem.displayName.toLowerCase();
+    //             break;
+    //         case ApiItemKind.Package:
+    //             baseName += "/" + PackageName.getUnscopedName(hierarchyItem.displayName);
+    //             break;
+    //         case ApiItemKind.EntryPoint:
+    //         default:
+    //             // baseName += "/" + baseName;
+    //             break;
+    //     }
 
-        switch (hierarchyItem.kind) {
-            case ApiItemKind.Class:
-            case ApiItemKind.Interface:
-                // console.log(`class/interface: ${hierarchyItem.displayName}`);
-                baseName += "/" + hierarchyItem.displayName.toLowerCase();
-                break;
-            case ApiItemKind.Package:
-                baseName += "/" + PackageName.getUnscopedName(hierarchyItem.displayName);
-                break;
-            case ApiItemKind.EntryPoint:
-            default:
-                // baseName += "/" + baseName;
-                break;
-        }
-
-        // if (item.displayName === "AzureAudience") {
-        //     console.log(chalk.white(`baseName: ${baseName}, kind: ${hierarchyItem.kind}`));
-        // }
-    }
+    //     // if (item.displayName === "AzureAudience") {
+    //     //     console.log(chalk.white(`baseName: ${baseName}, kind: ${hierarchyItem.kind}`));
+    //     // }
+    // }
     // if (item.displayName === "AzureAudience") {
     //     console.log(chalk.white(`filename for ${item.displayName}: ${baseName}.md`))
     // }

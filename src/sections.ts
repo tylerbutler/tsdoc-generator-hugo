@@ -13,6 +13,7 @@ import chalk from "chalk";
 import type { Code, Content, Heading, Link, Paragraph, PhrasingContent, Strong, Table, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
 import { Emphasis } from "mdast-util-from-markdown/lib";
+import path from "path/posix";
 import { ApiItemWrapper, ApiModelWrapper } from "./ApiModelWrapper.js";
 import { DocumenterConfig } from "./DocumenterConfig.js";
 import { callout, docNodesToMdast, docNodeToMdast, hasStandalonePage, hugoLabel, hugoLinkForItem, hugoPanel, linkIfFound, linkItem, spacer } from "./mdNodes.js";
@@ -23,7 +24,7 @@ export async function getBreadcrumb(item: ApiItem, model: ApiModel, config: Docu
     if (hasStandalonePage(item)) {
     }
     const output = md.paragraph([
-        md.link("/docs/apis/index.md", "Packages", [md.text("Packages")]),
+        md.link("/docs/apis/", "Packages", [md.text("Packages")]),
         separator(),
     ]) as Paragraph;
 
@@ -38,8 +39,8 @@ export async function getBreadcrumb(item: ApiItem, model: ApiModel, config: Docu
                 // We don't show the entry point because today API Extractor doesn"t support multiple entry points;
                 // this may change in the future.
                 break;
-            // case ApiItemKind.Package:
-            //     console.log("Got a package");
+            case ApiItemKind.Package:
+                console.log("Got a package");
             default:
                 const link = linkItem(wrapper, hierarchyItem, config);
                 output.children.push(link, separator());
