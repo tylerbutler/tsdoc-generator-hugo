@@ -200,12 +200,12 @@ export class HugoDocumenter {
             throw new Error(`Expected a Model, got a: ${this._apiModel.kind}`);
         }
         for (const pkg of this._apiModel.members) {
-            WriteApiFiles(pkg, 0, this._outputPath, this._apiModel);
+            WriteApiFiles(pkg, 0, this._outputPath, this._apiModel, this._documenterConfig);
         }
     }
 }
 
-async function WriteApiFiles(item: ApiItem, level: number, outputPath: string, model?: ApiModel): Promise<void> {
+async function WriteApiFiles(item: ApiItem, level: number, outputPath: string, model: ApiModel, config: DocumenterConfig): Promise<void> {
     let tree: Root = md.root() as Root;
     let classPages: MdOutputPage[] | undefined;
     let interfacePages: MdOutputPage[] | undefined;
@@ -219,7 +219,7 @@ async function WriteApiFiles(item: ApiItem, level: number, outputPath: string, m
     switch (item.kind) {
         case ApiItemKind.Package:
             console.log(`Writing package: ${item.displayName}`);
-            [tree, classPages, interfacePages] = await GeneratePackageMdast(item as ApiPackage, model);
+            [tree, classPages, interfacePages] = await GeneratePackageMdast(item as ApiPackage, model, config);
             break;
         default:
             throw new Error(`Cannot handle ApiItemKind.${item.kind}`);

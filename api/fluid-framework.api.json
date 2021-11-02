@@ -1269,7 +1269,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "fluid-framework!IFluidContainerEvents:interface",
-          "docComment": "/**\n * Events emitted from IFluidContainer.\n *\n * ### \"connected\"\n *\n * The connected event is emitted when the `IFluidContainer` completes connecting to the Fluid service.\n *\n * #### Listener signature\n * ```typescript\n * () => void;\n * ```\n *\n * ### \"dispose\"\n *\n * The dispose event is emitted when the `IFluidContainer` is disposed, which permanently disables it.\n *\n * #### Listener signature\n * ```typescript\n * () => void;\n * ```\n *\n * ### \"disconnected\"\n *\n * The disconnected event is emitted when the `IFluidContainer` becomes disconnected from the Fluid service.\n *\n * #### Listener signature\n * ```typescript\n * () => void;\n * ```\n *\n */\n",
+          "docComment": "/**\n * Events emitted from IFluidContainer.\n *\n * ### \"connected\"\n *\n * The connected event is emitted when the `IFluidContainer` completes connecting to the Fluid service.\n *\n * #### Listener signature\n * ```typescript\n * () => void;\n * ```\n *\n * ### \"dispose\"\n *\n * The dispose event is emitted when the `IFluidContainer` is disposed, which permanently disables it.\n *\n * #### Listener signature\n * ```typescript\n * () => void;\n * ```\n *\n * ### \"disconnected\"\n *\n * The disconnected event is emitted when the `IFluidContainer` becomes disconnected from the Fluid service.\n *\n * #### Listener signature\n * ```typescript\n * () => void;\n * ```\n *\n * ### \"saved\"\n *\n * The saved event is emitted when the `IFluidContainer` has local changes acknowledged by the service.\n *\n * #### Listener signature\n * ```typescript\n * () => void\n * ```\n *\n * ### \"dirty\"\n *\n * The dirty event is emitted when the `IFluidContainer` has local changes that have not yet been acknowledged by the service.\n *\n * #### Listener signature\n * ```typescript\n * () => void\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1299,7 +1299,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "\"connected\" | \"dispose\" | \"disconnected\""
+                  "text": "\"connected\" | \"dispose\" | \"disconnected\" | \"saved\" | \"dirty\""
                 },
                 {
                   "kind": "Content",

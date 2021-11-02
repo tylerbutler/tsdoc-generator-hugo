@@ -13,10 +13,11 @@ import chalk from "chalk";
 import type { Code, Content, Heading, Link, Paragraph, PhrasingContent, Strong, Table, TableRow, Text } from "mdast";
 import * as md from "mdast-builder";
 import { Emphasis } from "mdast-util-from-markdown/lib";
-import { ApiItemWrapper } from "./ApiModelWrapper.js";
-import { callout, docNodesToMdast, docNodeToMdast, hasStandalonePage, hugoLinkForItem, linkIfFound, spacer, _getLinkFilenameForApiItem } from "./mdNodes.js";
+import { ApiItemWrapper, ApiModelWrapper } from "./ApiModelWrapper.js";
+import { DocumenterConfig } from "./DocumenterConfig.js";
+import { callout, docNodesToMdast, docNodeToMdast, hasStandalonePage, hugoLabel, hugoLinkForItem, hugoPanel, linkIfFound, linkItem, spacer } from "./mdNodes.js";
 
-export async function getBreadcrumb(item: ApiItem): Promise<Paragraph> {
+export async function getBreadcrumb(item: ApiItem, model: ApiModel, config: DocumenterConfig): Promise<Paragraph> {
     const separator = () => md.text(" > ") as Text;
 
     if (hasStandalonePage(item)) {
@@ -25,6 +26,8 @@ export async function getBreadcrumb(item: ApiItem): Promise<Paragraph> {
         md.link("/docs/apis/index.md", "Packages", [md.text("Packages")]),
         separator(),
     ]) as Paragraph;
+
+    const wrapper = new ApiModelWrapper(model);
 
     for (const hierarchyItem of item.getHierarchy()) {
         // console.log(chalk.red(`hierarchyItem: ${hierarchyItem.kind} ${hierarchyItem}`));
@@ -38,7 +41,7 @@ export async function getBreadcrumb(item: ApiItem): Promise<Paragraph> {
             // case ApiItemKind.Package:
             //     console.log("Got a package");
             default:
-                const link = md.link(_getLinkFilenameForApiItem(hierarchyItem), hierarchyItem.displayName, [md.text(hierarchyItem.displayName)]) as Link;
+                const link = linkItem(wrapper, hierarchyItem, config);
                 output.children.push(link, separator());
         }
     }
@@ -55,12 +58,6 @@ export async function getSummary(apiItem: ApiItem, extendedSummary = false, with
         // const tsdocComment = apiItem.tsdocComment;
         const docComment = apiItem.tsdocComment;
         if (docComment) {
-            // if (tsdocComment.deprecatedBlock) {
-            //     // console.log(chalk.red(`${apiItem.displayName} is deprecated!`))
-            //     const block = tsdocComment.deprecatedBlock;
-            //     nodes.push(callout("warning", "Deprecated", docNodesToMdast(block.getChildNodes())));
-            // }
-
             if (docComment.summarySection) {
                 docNodes = extendedSummary ? docComment.summarySection.nodes : docComment.summarySection.nodes.slice(0, 1);
             } else {
@@ -74,6 +71,7 @@ export async function getSummary(apiItem: ApiItem, extendedSummary = false, with
             nodes.push(md.heading(4, md.text("Summary")) as Heading);
             nodes.push(spacer());
         }
+        // console.log(chalk.greenBright(`Converting ${apiItem.displayName} to MDAST`));
         nodes.push(...docNodesToMdast(docNodes));
     }
     // console.log(`nodes for ${apiItem.displayName}: ${tsdocComment.summarySection.nodes.map(n => n.kind)}`);
@@ -103,6 +101,9 @@ export async function getDeprecatedCallout(item: ApiDocumentedItem): Promise<Par
     } else return md.paragraph() as Paragraph;
 }
 
+export async function isDeprecated(item: ApiDocumentedItem): Promise<boolean> {
+    return item.tsdocComment?.deprecatedBlock !== undefined;
+}
 
 export async function getRemarks(apiItem: ApiItem): Promise<Paragraph> {
     const nodes: Content[] = [];
@@ -113,6 +114,7 @@ export async function getRemarks(apiItem: ApiItem): Promise<Paragraph> {
             // Write the @remarks block
             if (tsdocComment.remarksBlock) {
                 nodes.push(md.heading(3, md.text("Remarks")) as Heading)
+                nodes.push(spacer());
                 nodes.push(...docNodesToMdast(tsdocComment.remarksBlock.content.nodes));
             }
 
@@ -125,7 +127,10 @@ export async function getRemarks(apiItem: ApiItem): Promise<Paragraph> {
             for (const exampleBlock of exampleBlocks) {
                 const heading: string = exampleBlocks.length > 1 ? `Example ${exampleNumber}` : 'Example';
 
-                nodes.push(md.heading(4, md.text(heading)) as Heading);
+                nodes.push(
+                    md.heading(2, md.text(heading)) as Heading,
+                    spacer(),
+                );
                 nodes.push(...docNodesToMdast(exampleBlock.content.nodes));
 
                 ++exampleNumber;
@@ -163,7 +168,7 @@ export async function getNotes(apiItem: ApiItem): Promise<Paragraph> {
         if (tsdocComment) {
             // Write the @remarks block
             if (tsdocComment.deprecatedBlock) {
-                nodes.push(md.strong(md.text("Deprecated:")) as Strong);
+                nodes.push(hugoLabel("Deprecated", "default"));
                 nodes.push(md.text(" ") as Text);
                 nodes.push(...docNodesToMdast(tsdocComment.deprecatedBlock.getChildNodes()));
             }
@@ -172,23 +177,25 @@ export async function getNotes(apiItem: ApiItem): Promise<Paragraph> {
     return md.paragraph(nodes) as Paragraph;
 }
 
-export async function getSignature(item: ApiDeclaredItem): Promise<Paragraph> {
+export async function getSignature(item: ApiDeclaredItem, withHeading: boolean = false): Promise<Paragraph> {
     const nodes: Content[] = [];
 
-    nodes.push(md.strong(md.text("Signature:")) as Strong);
-    nodes.push(spacer());
+    if (withHeading) {
+        nodes.push(md.strong(md.text("Signature:")) as Strong);
+        nodes.push(spacer());
+    }
 
     nodes.push(md.code("typescript", item.getExcerptWithModifiers()) as Code);
     nodes.push(spacer());
     return md.paragraph(nodes) as Paragraph;
 }
 
-export async function getExtends(apiItem: ApiClass | ApiInterface, model?: ApiModel): Promise<Paragraph> {
+export async function getExtends(apiItem: ApiClass | ApiInterface, model: ApiModel, config: DocumenterConfig): Promise<Paragraph> {
     const nodes: Content[] = [];
 
     if (apiItem instanceof ApiClass) {
         if (apiItem.extendsType) {
-            const excerpt = await _getExcerptWithHyperlinks(apiItem.extendsType.excerpt, model)
+            const excerpt = await _getExcerptWithHyperlinks(apiItem.extendsType.excerpt, model, config)
             // console.log(chalk.red(excerpt[excerpt.length - 1].type));
             nodes.push(md.paragraph([
                 md.strong(md.text("Extends:")),
@@ -206,7 +213,7 @@ export async function getExtends(apiItem: ApiClass | ApiInterface, model?: ApiMo
 
             let needsComma: boolean = false;
             for (const implementsType of apiItem.implementsTypes) {
-                const excerpt = await _getExcerptWithHyperlinks(implementsType.excerpt, model);
+                const excerpt = await _getExcerptWithHyperlinks(implementsType.excerpt, model, config);
                 if (needsComma) {
                     implementsParagraph.children.push(md.text(', ') as Text);
                 }
@@ -250,8 +257,12 @@ export async function getExtends(apiItem: ApiClass | ApiInterface, model?: ApiMo
     return md.paragraph(nodes) as Paragraph;
 }
 
-export async function getFunctionParameters(item: ApiParameterListMixin, model?: ApiModel): Promise<Paragraph> {
-    let wrapper: ApiItemWrapper | undefined;
+export async function getFunctionParameters(item: ApiParameterListMixin, model: ApiModel, config: DocumenterConfig): Promise<Paragraph | undefined> {
+    if (item.parameters.length === 0) {
+        return undefined;
+    }
+
+    const wrapper = new ApiModelWrapper(model);
     const nodes: Content[] = [];
     const table = md.table([null], []) as Table;
     let description: Content | undefined;
@@ -264,16 +275,12 @@ export async function getFunctionParameters(item: ApiParameterListMixin, model?:
         md.tableCell([md.text("Notes")])
     ]) as TableRow);
 
-    if (model) {
-        wrapper = new ApiItemWrapper(model);
-    }
-
     for (const p of item.parameters) {
         // const [summary, notes] = await Promise.all([getSummary(p), getNotes(p)]);
         const summary = await getParameterSummary(p);
         const paramType = p.parameterTypeExcerpt.text;
         if (wrapper) {
-            description = linkIfFound(wrapper, paramType);
+            description = linkIfFound(wrapper, paramType, config);
         } else {
             description = md.text(paramType) as Text;
             // console.log(chalk.redBright())
@@ -299,18 +306,15 @@ export async function getFunctionParameters(item: ApiParameterListMixin, model?:
     return md.paragraph(nodes) as Paragraph;
 }
 
-export async function getExcerptCodeBlock(excerpt: Excerpt, model?: ApiModel): Promise<Code> {
+export async function getExcerptCodeBlock(excerpt: Excerpt, model: ApiModel): Promise<Code> {
     return md.code("typescript", excerpt.text) as Code;
 }
 
-export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model?: ApiModel): Promise<PhrasingContent[]> {
+export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model: ApiModel, config: DocumenterConfig): Promise<PhrasingContent[]> {
     const nodes: PhrasingContent[] = [];
-    const wrapper = model ? new ApiItemWrapper(model) : undefined;
+    const wrapper = model ? new ApiModelWrapper(model) : undefined;
 
     for (const token of excerpt.spannedTokens) {
-        // Markdown doesn't provide a standardized syntax for hyperlinks inside code spans, so we will render
-        // the type expression as DocPlainText.  Instead of creating multiple DocParagraphs, we can simply
-        // discard any newlines and let the renderer do normal word-wrapping.
         const unwrappedTokenText: string = token.text;//.replace(/[\r\n]+/g, ' ');
         console.log(chalk.yellowBright(unwrappedTokenText));
 
@@ -323,7 +327,7 @@ export async function _getExcerptWithHyperlinks(excerpt: Excerpt, model?: ApiMod
             console.log(chalk.cyan(`  ${name} -- ${meaning}`));
 
             if (name && wrapper && (meaning === Meaning.Class || meaning === Meaning.Interface)) {
-                const link = linkIfFound(wrapper, name);
+                const link = linkIfFound(wrapper, name, config);
                 nodes.push(link);
             }
         } else {

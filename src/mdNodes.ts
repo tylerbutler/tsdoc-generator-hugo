@@ -8,6 +8,7 @@ import {
     DocFencedCode,
     DocHtmlEndTag,
     DocHtmlStartTag,
+    DocInlineTag,
     DocLinkTag,
     DocNode,
     DocNodeKind,
@@ -21,9 +22,11 @@ import chalk from "chalk";
 import type { Break, Code, Content, HTML, InlineCode, Link, Paragraph, Text } from "mdast";
 import * as md from "mdast-builder";
 import { fromMarkdown } from "mdast-util-from-markdown";
+import { toMarkdown } from "mdast-util-to-markdown";
 import path from "path";
 import { describe } from "yargs";
-import { ApiItemWrapper } from "./ApiModelWrapper.js";
+import { ApiModelWrapper } from "./ApiModelWrapper.js";
+import { DocumenterConfig } from "./DocumenterConfig.js";
 import { getSafeFilenameForName } from "./util.js";
 
 export function callout(type: string, title?: string, children?: Content[]): Paragraph {
@@ -50,6 +53,24 @@ export function callout(type: string, title?: string, children?: Content[]): Par
 }
 
 export const spacer = () => md.text("\n\n") as Text;
+
+export type LabelKind = "default" | "primary" | "success" | "info" | "warning" | "danger";
+
+export function hugoLabel(text: string, kind: LabelKind): HTML {
+    const label = md.html(`<span class="label label-${kind}">${text}</span>`) as HTML;
+    return label;
+}
+
+export function hugoPanel(body: string, kind: LabelKind, title?: string): HTML {
+    const heading = title ? `<div class="panel-heading"><div class="panel-title">${title}</div></div>` : "";
+    const panel = `<div class="panel panel-${kind}">
+    ${heading}
+    <div class="panel-body">
+    ${body}
+  </div>
+</div>`;
+    return md.html(panel) as HTML;
+}
 
 export function hugoLinkForItem(item: string, linkText?: string): Link {
     if (!linkText) { linkText = item; }
@@ -86,24 +107,35 @@ export function docNodeToMdast(docNode: DocNode, model?: ApiModel): Content[] | 
             break;
         case DocNodeKind.CodeSpan:
             const code = docNode as DocCodeSpan;
-            return [md.inlineCode(code.code) as InlineCode];
+            // console.warn(chalk.yellow(`DocCodeSpan: ${code.code}`));
+            return [
+                md.text(" ") as Text,
+                md.inlineCode(code.code) as InlineCode,
+                md.text(" ") as Text,
+            ];
         case DocNodeKind.Comment:
             const comment = docNode as DocComment;
             break;
         case DocNodeKind.ErrorText:
             const docErrorText = docNode as DocErrorText;
+            // console.warn(chalk.yellow(`DocErrorText: ${docErrorText.text}`));
             return [md.text(docErrorText.text) as Text];
         case DocNodeKind.EscapedText:
             const docEscapedText = docNode as DocEscapedText;
+            // console.warn(chalk.yellow(`DocEscapedText: ${docEscapedText.decodedText}`));
             return [md.text(docEscapedText.decodedText) as Text];
         case DocNodeKind.FencedCode:
             const docFencedCode = docNode as DocFencedCode;
+            // console.warn(chalk.yellow(`DocFencedCode: ${docFencedCode.code}`));
             return [md.code(docFencedCode.language, docFencedCode.code) as Code];
         case DocNodeKind.HtmlStartTag:
         case DocNodeKind.HtmlEndTag:
             const docHtmlTag = docNode as DocHtmlStartTag | DocHtmlEndTag;
+            // console.warn(chalk.yellow(`DocHtmlStartTag | DocHtmlEndTag: ${docHtmlTag.kind}`));
             return [md.html(docHtmlTag.emitAsHtml()) as HTML];
         case DocNodeKind.InlineTag:
+            const docInlineTag = docNode as DocInlineTag;
+            // console.warn(chalk.yellow(`DocInlineTag: ${docInlineTag.tagName}`));
             break;
         case DocNodeKind.LinkTag:
             const docLinkTag = docNode as DocLinkTag;
@@ -122,41 +154,50 @@ export function docNodeToMdast(docNode: DocNode, model?: ApiModel): Content[] | 
         case DocNodeKind.Paragraph:
             const docParagraph = docNode as DocParagraph;
             const trimmedParagraph = DocNodeTransforms.trimSpacesInParagraph(docParagraph);
-            const children: Content[] = docNodesToMdast(trimmedParagraph.nodes);
-            return [md.paragraph(children) as Paragraph];
+            // console.warn(chalk.yellow(`DocParagraph: ${docParagraph.nodes.length} child nodes`));
+            const children: Content[] = docNodesToMdast(trimmedParagraph.getChildNodes());
+            // const p = md.paragraph(children) as Paragraph;
+            // const m = toMarkdown(p)
+            // console.warn(chalk.yellow(m));
+            // const r = fromMarkdown(m);
+            return [spacer(), ...children, spacer()];
         case DocNodeKind.PlainText:
             // return [md.text((docNode as DocPlainText).text) as Text];
-            return plainTextToMdast(docNode as DocPlainText);
+            const docPlainText = docNode as DocPlainText;
+            // console.warn(chalk.yellow(`DocPlainText: ${docPlainText.text}`));
+            return plainTextToMdast(docPlainText);
         case DocNodeKind.Section:
             const docSection: DocSection = docNode as DocSection;
+            // console.warn(chalk.yellow(`DocSection: ${docSection.nodes.length} child nodes`));
             const sectionChildren: Content[] = docNodesToMdast(docSection.nodes);
             return [md.paragraph(sectionChildren) as Paragraph];
         case DocNodeKind.SoftBreak:
+            // console.warn(chalk.yellow(`SoftBreak`));
             return [md.brk as Break];
         default:
             throw new Error(`Unsupported DocNodeKind kind: ${docNode.kind}`);
     }
 }
 
-export function linkIfFound(wrapper: ApiItemWrapper | undefined, searchString: string, kind?: ApiItemKind): Link | Text {
+export function linkIfFound(wrapper: ApiModelWrapper, searchString: string, config: DocumenterConfig): Link | Text {
     if (!wrapper) { return md.text(searchString) as Text; }
-    const found = wrapper.find(searchString, kind, false);
+    const found = wrapper.find(searchString, undefined, false);
     if (found) {
-        return hugoLinkForItem(searchString);
+        return linkItem(wrapper, found, config);
     } else {
         return md.text(searchString) as Text;
         // console.log(chalk.redBright())
     }
 }
 
-export function linkItem(wrapper: ApiItemWrapper | undefined, item: ApiItem, kind?: ApiItemKind): Link | Text {
-    const link = _getLinkFilenameForApiItem(item);
+export function linkItem(wrapper: ApiModelWrapper, item: ApiItem, config: DocumenterConfig): Link | Text {
+    const filename = _getFilenameForApiItem(item);
     if (hasStandalonePage(item)) {
         if (!wrapper) { return md.text(item.displayName) as Text; }
 
-        return hugoLink(item.displayName, link);
+        return hugoLink(item.displayName, config.uriRoot + (filename ?? "index.md"));
     } else {
-        return hugoLink(item.displayName, "#" + item.displayName.toLowerCase());
+        return hugoLink(item.displayName, config.uriRoot + filename + "#" + item.displayName.toLowerCase());
     }
 }
 
@@ -206,11 +247,11 @@ function linkTagWithCodeDestination(
     return md.text("") as Text;
 }
 
-export function _getFilenameForApiItem(item: ApiItem): string | undefined {
-    if (!hasStandalonePage(item)) {
-        // throw new Error(`Can't process item of kind: ${item.kind}`);
-        return undefined;
-    }
+export function _getFilenameForApiItem(item: ApiItem): string {
+    // if (!hasStandalonePage(item)) {
+    //     // throw new Error(`Can't process item of kind: ${item.kind}`);
+    //     return undefined;
+    // }
 
     // if (item.kind === ApiItemKind.Model) {
     //     return "index.md";
@@ -255,14 +296,14 @@ export function _getFilenameForApiItem(item: ApiItem): string | undefined {
     // if (item.displayName === "AzureAudience") {
     //     console.log(chalk.white(`filename for ${item.displayName}: ${baseName}.md`))
     // }
-    return baseName + '.md';
+    return baseName + ".md";
 }
 
-export function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
-    // return './' + _getFilenameForApiItem(apiItem);
-    const filename = _getFilenameForApiItem(apiItem) ?? "index.md";
-    return "/docs/apis" + filename;
-}
+// export function _getLinkFilenameForApiItem(apiItem: ApiItem): string {
+//     // return './' + _getFilenameForApiItem(apiItem);
+//     const filename = _getFilenameForApiItem(apiItem) ?? "index.md";
+//     return "/docs/apis" + filename;
+// }
 
 export function hasStandalonePage(item: ApiItem) {
     const isPage = [ApiItemKind.Class, ApiItemKind.Interface, ApiItemKind.Package].includes(item.kind);
