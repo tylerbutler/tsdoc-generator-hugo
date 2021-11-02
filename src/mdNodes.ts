@@ -258,15 +258,15 @@ export function _getFilenameForApiItem(item: ApiItem): string {
     let baseName = "";
 
     if (item.kind === ApiItemKind.Package) {
-        baseName = item.displayName.toLowerCase();
+        baseName = PackageName.getUnscopedName(item.displayName);
     } else {
         const pkg = item.getAssociatedPackage();
-        baseName = pkg !== undefined ? pkg.displayName.toLowerCase() : "";
+        baseName = pkg !== undefined ? PackageName.getUnscopedName(pkg.displayName) : "";
     }
 
 
     if (hasStandalonePage(item) && item.kind !== ApiItemKind.Package) {
-        baseName = path.posix.join(baseName, PackageName.getUnscopedName(item.displayName));
+        baseName = path.join(baseName, PackageName.getUnscopedName(item.displayName));
     }
 
     // if (item.displayName === "AzureAudience") {
