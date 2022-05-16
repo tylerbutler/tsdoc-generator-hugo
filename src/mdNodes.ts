@@ -23,7 +23,8 @@ import type { Break, Code, Content, HTML, InlineCode, Link, Paragraph, Text } fr
 import * as md from "mdast-builder";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toMarkdown } from "mdast-util-to-markdown";
-import path from "path/posix";
+// import path from "path/posix";
+import * as path from "pathe";
 import { describe } from "yargs";
 import { ApiModelWrapper } from "./ApiModelWrapper.js";
 import { DocumenterConfig } from "./DocumenterConfig.js";
@@ -192,7 +193,7 @@ export function linkIfFound(wrapper: ApiModelWrapper, searchString: string, conf
 
 export function linkItem(wrapper: ApiModelWrapper | undefined, item: ApiItem, config: DocumenterConfig): Link | Text {
     const filename = _getFilenameForApiItem(item);
-    const filePath = path.join(config.uriRoot ?? "/", filename);
+    const filePath = path.join(config.uriRoot ?? path.sep, filename);
     if (hasStandalonePage(item)) {
         if (!wrapper) { return md.text(item.displayName) as Text; }
 

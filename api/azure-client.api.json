@@ -1372,7 +1372,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "@fluidframework/azure-client!ScopeType.SummaryWrite:member",
-              "docComment": "SummaryWriteDocComment",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",

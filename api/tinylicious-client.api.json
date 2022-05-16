@@ -1,0 +1,710 @@
+{
+  "metadata": {
+    "toolPackage": "@microsoft/api-extractor",
+    "toolVersion": "7.16.1",
+    "schemaVersion": 1004,
+    "oldestForwardsCompatibleVersion": 1001,
+    "tsdocConfig": {
+      "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+      "noStandardTags": true,
+      "tagDefinitions": [
+        {
+          "tagName": "@alpha",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@beta",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@defaultValue",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@decorator",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@deprecated",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@eventProperty",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@example",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@experimental",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@inheritDoc",
+          "syntaxKind": "inline"
+        },
+        {
+          "tagName": "@internal",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@label",
+          "syntaxKind": "inline"
+        },
+        {
+          "tagName": "@link",
+          "syntaxKind": "inline",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@override",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@packageDocumentation",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@param",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@privateRemarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@public",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@readonly",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@remarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@returns",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@sealed",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@see",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@throws",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@typeParam",
+          "syntaxKind": "block",
+          "allowMultiple": true
+        },
+        {
+          "tagName": "@virtual",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@betaDocumentation",
+          "syntaxKind": "modifier"
+        },
+        {
+          "tagName": "@internalRemarks",
+          "syntaxKind": "block"
+        },
+        {
+          "tagName": "@preapproved",
+          "syntaxKind": "modifier"
+        }
+      ],
+      "supportForTags": {
+        "@alpha": true,
+        "@beta": true,
+        "@defaultValue": true,
+        "@decorator": true,
+        "@deprecated": true,
+        "@eventProperty": true,
+        "@example": true,
+        "@experimental": true,
+        "@inheritDoc": true,
+        "@internal": true,
+        "@label": true,
+        "@link": true,
+        "@override": true,
+        "@packageDocumentation": true,
+        "@param": true,
+        "@privateRemarks": true,
+        "@public": true,
+        "@readonly": true,
+        "@remarks": true,
+        "@returns": true,
+        "@sealed": true,
+        "@see": true,
+        "@throws": true,
+        "@typeParam": true,
+        "@virtual": true,
+        "@betaDocumentation": true,
+        "@internalRemarks": true,
+        "@preapproved": true
+      }
+    }
+  },
+  "kind": "Package",
+  "canonicalReference": "@fluidframework/tinylicious-client!",
+  "docComment": "/**\n * The **tinylicious-client** package provides a simple and powerful way to consume collaborative Fluid data with the Tinylicious service.\n *\n * @packageDocumentation\n */\n",
+  "name": "@fluidframework/tinylicious-client",
+  "members": [
+    {
+      "kind": "EntryPoint",
+      "canonicalReference": "@fluidframework/tinylicious-client!",
+      "name": "",
+      "members": [
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@fluidframework/tinylicious-client!ITinyliciousAudience:type",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ITinyliciousAudience = "
+            },
+            {
+              "kind": "Reference",
+              "text": "IServiceAudience",
+              "canonicalReference": "fluid-framework!IServiceAudience:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "TinyliciousMember",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousMember:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ">"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ITinyliciousAudience",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          }
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousAudience:class",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class TinyliciousAudience extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "ServiceAudience",
+              "canonicalReference": "fluid-framework!ServiceAudience:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "TinyliciousMember",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousMember:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "> "
+            },
+            {
+              "kind": "Content",
+              "text": "implements "
+            },
+            {
+              "kind": "Reference",
+              "text": "ITinyliciousAudience",
+              "canonicalReference": "@fluidframework/tinylicious-client!ITinyliciousAudience:type"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TinyliciousAudience",
+          "members": [],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          },
+          "implementsTokenRanges": [
+            {
+              "startIndex": 6,
+              "endIndex": 8
+            }
+          ]
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClient:class",
+          "docComment": "/**\n * TinyliciousClient provides the ability to have a Fluid object backed by a Tinylicious service\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class TinyliciousClient "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TinyliciousClient",
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClient:constructor(1)",
+              "docComment": "/**\n * Creates a new client instance using configuration parameters.\n *\n * @param props - Optional. Properties for initializing a new TinyliciousClient instance\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(props?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TinyliciousClientProps",
+                  "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClientProps:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "props",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClient#createContainer:member(1)",
+              "docComment": "/**\n * Creates a new detached container instance in Tinylicious server.\n *\n * @param containerSchema - Container schema for the new container.\n *\n * @returns New detached container instance along with associated services.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "createContainer(containerSchema: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ContainerSchema",
+                  "canonicalReference": "fluid-framework!ContainerSchema:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n        container: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IFluidContainer",
+                  "canonicalReference": "fluid-framework!IFluidContainer:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        services: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TinyliciousContainerServices",
+                  "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousContainerServices:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "containerSchema",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                }
+              ],
+              "name": "createContainer"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClient#getContainer:member(1)",
+              "docComment": "/**\n * Accesses the existing container given its unique ID in the tinylicious server.\n *\n * @param id - Unique ID of the container.\n *\n * @param containerSchema - Container schema used to access data objects in the container.\n *\n * @returns Existing container instance along with associated services.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getContainer(id: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", containerSchema: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ContainerSchema",
+                  "canonicalReference": "fluid-framework!ContainerSchema:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n        container: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IFluidContainer",
+                  "canonicalReference": "fluid-framework!IFluidContainer:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        services: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TinyliciousContainerServices",
+                  "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousContainerServices:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "id",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "containerSchema",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                }
+              ],
+              "name": "getContainer"
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClientProps:interface",
+          "docComment": "/**\n * Props for initializing a TinyliciousClient\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TinyliciousClientProps "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TinyliciousClientProps",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClientProps#connection:member",
+              "docComment": "/**\n * Optional. Configuration for establishing a connection with the Tinylicious.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "connection?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TinyliciousConnectionConfig",
+                  "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousConnectionConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "connection",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousClientProps#logger:member",
+              "docComment": "/**\n * Optional. A logger instance to receive diagnostic messages.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "logger?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITelemetryBaseLogger",
+                  "canonicalReference": "@fluidframework/common-definitions!ITelemetryBaseLogger:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "logger",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousConnectionConfig:interface",
+          "docComment": "/**\n * Parameters for establishing a connection with the a Tinylicious service.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TinyliciousConnectionConfig "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TinyliciousConnectionConfig",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousConnectionConfig#domain:member",
+              "docComment": "/**\n * Optional. Override of the domain\n *\n * @defaultValue\n *\n * - http://localhost\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "domain?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "domain",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousConnectionConfig#port:member",
+              "docComment": "/**\n * Optional. Override of the port\n *\n * @defaultValue\n *\n * - 7070\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "port?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "port",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousContainerServices:interface",
+          "docComment": "/**\n * TinyliciousContainerServices is returned by the TinyliciousClient alongside a FluidContainer. It holds the functionality specifically tied to the Tinylicious service, and how the data stored in the FluidContainer is persisted in the backend and consumed by users. Any functionality regarding how the data is handled within the FluidContainer itself, i.e. which data objects or DDSes to use, will not be included here but rather on the FluidContainer class itself.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TinyliciousContainerServices "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TinyliciousContainerServices",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousContainerServices#audience:member",
+              "docComment": "/**\n * Provides an object that can be used to get the users that are present in this Fluid session and listeners for when the roster has any changes from users joining/leaving the session\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "audience: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITinyliciousAudience",
+                  "canonicalReference": "@fluidframework/tinylicious-client!ITinyliciousAudience:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "audience",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousMember:interface",
+          "docComment": "/**\n * Since Tinylicious provides user names for all of its members, we extend the IMember interface to include this service-specific value. It will be returned for all audience members connected to Tinylicious.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TinyliciousMember extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "IMember",
+              "canonicalReference": "fluid-framework!IMember:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TinyliciousMember",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@fluidframework/tinylicious-client!TinyliciousMember#userName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "userName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "userName",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

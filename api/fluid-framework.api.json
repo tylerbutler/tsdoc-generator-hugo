@@ -552,8 +552,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Container",
-                  "canonicalReference": "@fluidframework/container-loader!Container:class"
+                  "text": "IContainer",
+                  "canonicalReference": "@fluidframework/container-definitions!IContainer:interface"
                 },
                 {
                   "kind": "Content",
@@ -854,7 +854,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!FluidContainer#isDirty:member",
-              "docComment": "/**\n * A container is considered **dirty** if it has local changes that have not yet been acknowledged by the service. acknowledged by the service. Closing the container while `isDirty === true` will result in the loss of these local changes. You should always check the `isDirty` flag before closing the container or navigating away from the page.\n *\n * A container is considered dirty in the following cases:\n *\n * 1. The container has local changes that have not yet been acknowledged by the service. These unacknowledged changes will be lost if the container is closed.\n *\n * 1. There is no network connection while making changes to the container. These changes cannot be acknowledged by the service until the network connection is restored.\n */\n",
+              "docComment": "/**\n * A container is considered **dirty** if it has local changes that have not yet been acknowledged by the service. You should always check the `isDirty` flag before closing the container or navigating away from the page. Closing the container while `isDirty === true` may result in the loss of operations that have not yet been acknowledged by the service.\n *\n * A container is considered dirty in the following cases:\n *\n * 1. The container has been created in the detached state, and either it has not been attached yet or it is in the process of being attached (container is in `attaching` state). If container is closed prior to being attached, host may never know if the file was created or not.\n *\n * 2. The container was attached, but it has local changes that have not yet been saved to service endpoint. This occurs as part of normal op flow where pending operation (changes) are awaiting acknowledgement from the service. In some cases this can be due to lack of network connection. If the network connection is down, it needs to be restored for the pending changes to be acknowledged.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1235,7 +1235,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "fluid-framework!IFluidContainer#isDirty:member",
-              "docComment": "/**\n * A container is considered **dirty** if it has local changes that have not yet been acknowledged by the service. acknowledged by the service. Closing the container while `isDirty === true` will result in the loss of these local changes. You should always check the `isDirty` flag before closing the container or navigating away from the page.\n *\n * A container is considered dirty in the following cases:\n *\n * 1. The container has local changes that have not yet been acknowledged by the service. These unacknowledged changes will be lost if the container is closed.\n *\n * 1. There is no network connection while making changes to the container. These changes cannot be acknowledged by the service until the network connection is restored.\n */\n",
+              "docComment": "/**\n * A container is considered **dirty** if it has local changes that have not yet been acknowledged by the service. You should always check the `isDirty` flag before closing the container or navigating away from the page. Closing the container while `isDirty === true` may result in the loss of operations that have not yet been acknowledged by the service.\n *\n * A container is considered dirty in the following cases:\n *\n * 1. The container has been created in the detached state, and either it has not been attached yet or it is in the process of being attached (container is in `attaching` state). If container is closed prior to being attached, host may never know if the file was created or not.\n *\n * 2. The container was attached, but it has local changes that have not yet been saved to service endpoint. This occurs as part of normal op flow where pending operation (changes) are awaiting acknowledgement from the service. In some cases this can be due to lack of network connection. If the network connection is down, it needs to be restored for the pending changes to be acknowledged.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -1916,7 +1916,7 @@
             },
             {
               "kind": "Content",
-              "text": "<{}, "
+              "text": "<{\n    InitialState: "
             },
             {
               "kind": "Reference",
@@ -1925,7 +1925,7 @@
             },
             {
               "kind": "Content",
-              "text": "> "
+              "text": ";\n}> "
             }
           ],
           "releaseTag": "Public",
@@ -2120,6 +2120,33 @@
                 "endIndex": 2
               },
               "isStatic": false
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fluid-framework!RootDataObject#InitialState:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "InitialState: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "RootDataObjectProps",
+                  "canonicalReference": "fluid-framework!RootDataObjectProps:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "InitialState",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRange": {
@@ -2261,8 +2288,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Container",
-                  "canonicalReference": "@fluidframework/container-loader!Container:class"
+                  "text": "IContainer",
+                  "canonicalReference": "@fluidframework/container-definitions!IContainer:interface"
                 },
                 {
                   "kind": "Content",
@@ -2320,8 +2347,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Container",
-                  "canonicalReference": "@fluidframework/container-loader!Container:class"
+                  "text": "IContainer",
+                  "canonicalReference": "@fluidframework/container-definitions!IContainer:interface"
                 },
                 {
                   "kind": "Content",
@@ -3115,7 +3142,20 @@
             },
             {
               "kind": "Content",
-              "text": "> "
+              "text": ">"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "IDisposable",
+              "canonicalReference": "@fluidframework/common-definitions!IDisposable:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
             }
           ],
           "releaseTag": "Public",
@@ -3564,76 +3604,6 @@
               "overloadIndex": 1,
               "parameters": [],
               "name": "subdirectories"
-            },
-            {
-              "kind": "MethodSignature",
-              "canonicalReference": "fluid-framework!IDirectory#wait:member(1)",
-              "docComment": "/**\n * A form of get except it will only resolve the promise once the key exists in the directory.\n *\n * @param key - Key to retrieve from\n *\n * @returns The stored value once available\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "wait<T = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">(key: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<T>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "key",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                }
-              ],
-              "typeParameters": [
-                {
-                  "typeParameterName": "T",
-                  "constraintTokenRange": {
-                    "startIndex": 0,
-                    "endIndex": 0
-                  },
-                  "defaultTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                }
-              ],
-              "name": "wait"
             }
           ],
           "extendsTokenRanges": [
@@ -3644,6 +3614,10 @@
             {
               "startIndex": 4,
               "endIndex": 8
+            },
+            {
+              "startIndex": 9,
+              "endIndex": 11
             }
           ]
         },
@@ -3736,7 +3710,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "fluid-framework!IDirectoryEvents:interface",
-          "docComment": "/**\n * Events emitted in response to changes to the directory data.\n *\n * ### \"containedValueChanged\"\n *\n * The containedValueChanged event is emitted when a key is set or deleted. As opposed to the SharedDirectory's valueChanged event, this is emitted only on the IDirectory that directly contains the key.\n *\n * #### Listener signature\n * ```typescript\n * (changed: IValueChanged, local: boolean, target: IEventThisPlaceHolder) => void\n * ```\n *\n * - `changed` - Information on the key that changed and its value prior to the change.\n *\n * - `local` - Whether the change originated from the this client.\n *\n * - `target` - The IDirectory itself.\n */\n",
+          "docComment": "/**\n * Events emitted in response to changes to the directory data.\n *\n * ### \"containedValueChanged\"\n *\n * The containedValueChanged event is emitted when a key is set or deleted. As opposed to the SharedDirectory's valueChanged event, this is emitted only on the IDirectory that directly contains the key.\n *\n * #### Listener signature\n * ```typescript\n * (changed: IValueChanged, local: boolean, target: IEventThisPlaceHolder) => void\n * ```\n *\n * - `changed` - Information on the key that changed and its value prior to the change.\n *\n * - `local` - Whether the change originated from the this client.\n *\n * - `target` - The IDirectory itself.\n *\n * ### \"disposed\"\n *\n * The dispose event is emitted when this sub directory is deleted.\n *\n * #### Listener signature\n * ```typescript\n * (local: boolean, target: IEventThisPlaceHolder) => void\n * ```\n *\n * - `target` - The IDirectory itself.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3826,6 +3800,72 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 8
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "CallSignature",
+              "canonicalReference": "fluid-framework!IDirectoryEvents:call(2)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "(event: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"disposed\""
+                },
+                {
+                  "kind": "Content",
+                  "text": ", listener: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(target: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IEventThisPlaceHolder",
+                  "canonicalReference": "@fluidframework/common-definitions!IEventThisPlaceHolder:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 2,
+              "parameters": [
+                {
+                  "parameterName": "event",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "listener",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
                   }
                 }
               ]
@@ -4335,91 +4375,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", local: boolean, op: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ISequencedDocumentMessage",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null, target: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IEventThisPlaceHolder",
-                  "canonicalReference": "@fluidframework/common-definitions!IEventThisPlaceHolder:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 12
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "event",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "listener",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 10
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "CallSignature",
-              "canonicalReference": "fluid-framework!ISharedDirectoryEvents:call(2)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "(event: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"clear\""
-                },
-                {
-                  "kind": "Content",
-                  "text": ", listener: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "(local: boolean, op: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ISequencedDocumentMessage",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null, target: "
+                  "text": ", local: boolean, target: "
                 },
                 {
                   "kind": "Reference",
@@ -4448,7 +4404,7 @@
                 "endIndex": 10
               },
               "releaseTag": "Public",
-              "overloadIndex": 2,
+              "overloadIndex": 1,
               "parameters": [
                 {
                   "parameterName": "event",
@@ -4462,6 +4418,72 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 8
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "CallSignature",
+              "canonicalReference": "fluid-framework!ISharedDirectoryEvents:call(2)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "(event: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"clear\""
+                },
+                {
+                  "kind": "Content",
+                  "text": ", listener: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(local: boolean, target: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IEventThisPlaceHolder",
+                  "canonicalReference": "@fluidframework/common-definitions!IEventThisPlaceHolder:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 2,
+              "parameters": [
+                {
+                  "parameterName": "event",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "listener",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
                   }
                 }
               ]
@@ -4662,76 +4684,6 @@
                 }
               ],
               "name": "set"
-            },
-            {
-              "kind": "MethodSignature",
-              "canonicalReference": "fluid-framework!ISharedMap#wait:member(1)",
-              "docComment": "/**\n * A form of get except it will only resolve the promise once the key exists in the map.\n *\n * @param key - Key to retrieve from\n *\n * @returns The stored value once available\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "wait<T = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">(key: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<T>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "key",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                }
-              ],
-              "typeParameters": [
-                {
-                  "typeParameterName": "T",
-                  "constraintTokenRange": {
-                    "startIndex": 0,
-                    "endIndex": 0
-                  },
-                  "defaultTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                }
-              ],
-              "name": "wait"
             }
           ],
           "extendsTokenRanges": [
@@ -4795,91 +4747,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", local: boolean, op: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ISequencedDocumentMessage",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null, target: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IEventThisPlaceHolder",
-                  "canonicalReference": "@fluidframework/common-definitions!IEventThisPlaceHolder:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 12
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "event",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "listener",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 10
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "CallSignature",
-              "canonicalReference": "fluid-framework!ISharedMapEvents:call(2)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "(event: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"clear\""
-                },
-                {
-                  "kind": "Content",
-                  "text": ", listener: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "(local: boolean, op: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ISequencedDocumentMessage",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ISequencedDocumentMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null, target: "
+                  "text": ", local: boolean, target: "
                 },
                 {
                   "kind": "Reference",
@@ -4908,7 +4776,7 @@
                 "endIndex": 10
               },
               "releaseTag": "Public",
-              "overloadIndex": 2,
+              "overloadIndex": 1,
               "parameters": [
                 {
                   "parameterName": "event",
@@ -4922,6 +4790,72 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 8
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "CallSignature",
+              "canonicalReference": "fluid-framework!ISharedMapEvents:call(2)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "(event: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"clear\""
+                },
+                {
+                  "kind": "Content",
+                  "text": ", listener: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(local: boolean, target: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IEventThisPlaceHolder",
+                  "canonicalReference": "@fluidframework/common-definitions!IEventThisPlaceHolder:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 8
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 2,
+              "parameters": [
+                {
+                  "parameterName": "event",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "listener",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 6
                   }
                 }
               ]
@@ -5027,7 +4961,7 @@
                 {
                   "kind": "Reference",
                   "text": "IFluidSerializer",
-                  "canonicalReference": "@fluidframework/core-interfaces!IFluidSerializer:interface"
+                  "canonicalReference": "@fluidframework/shared-object-base!IFluidSerializer:interface"
                 },
                 {
                   "kind": "Content",
@@ -5884,6 +5818,79 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "fluid-framework!SharedDirectory#dispose:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "dispose(error?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Error",
+                  "canonicalReference": "!Error:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "error",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                }
+              ],
+              "name": "dispose"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fluid-framework!SharedDirectory#disposed:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get disposed(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "disposed",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "fluid-framework!SharedDirectory#entries:member(1)",
               "docComment": "/**\n * Get an iterator over the entries under this IDirectory.\n *\n * @returns The iterator\n */\n",
               "excerptTokens": [
@@ -6474,77 +6481,6 @@
               "overloadIndex": 1,
               "parameters": [],
               "name": "values"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedDirectory#wait:member(1)",
-              "docComment": "/**\n * A form of get except it will only resolve the promise once the key exists in the directory.\n *\n * @param key - Key to retrieve from\n *\n * @returns The stored value once available\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "wait<T = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">(key: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<T>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "key",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                }
-              ],
-              "typeParameters": [
-                {
-                  "typeParameterName": "T",
-                  "constraintTokenRange": {
-                    "startIndex": 0,
-                    "endIndex": 0
-                  },
-                  "defaultTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                }
-              ],
-              "name": "wait"
             }
           ],
           "extendsTokenRange": {
@@ -7262,77 +7198,6 @@
               "overloadIndex": 1,
               "parameters": [],
               "name": "values"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedMap#wait:member(1)",
-              "docComment": "/**\n * A form of get except it will only resolve the promise once the key exists in the map.\n *\n * @param key - Key to retrieve from\n *\n * @returns The stored value once available\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "wait<T = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "any"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">(key: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<T>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "key",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                }
-              ],
-              "typeParameters": [
-                {
-                  "typeParameterName": "T",
-                  "constraintTokenRange": {
-                    "startIndex": 0,
-                    "endIndex": 0
-                  },
-                  "defaultTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                }
-              ],
-              "name": "wait"
             }
           ],
           "extendsTokenRange": {
@@ -7357,7 +7222,7 @@
             },
             {
               "kind": "Content",
-              "text": "(properties: MergeTree."
+              "text": "(properties: "
             },
             {
               "kind": "Reference",
@@ -7509,7 +7374,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "(interval: TInterval, propertyArgs: MergeTree."
+                  "text": "(interval: TInterval, propertyArgs: "
                 },
                 {
                   "kind": "Reference",
@@ -7692,10 +7557,6 @@
                   "text": ", client: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "Client",
                   "canonicalReference": "@fluidframework/merge-tree!Client:class"
@@ -7705,13 +7566,9 @@
                   "text": ", intervalType?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IntervalType",
-                  "canonicalReference": "@fluidframework/merge-tree!IntervalType:enum"
+                  "canonicalReference": "fluid-framework!IntervalType:enum"
                 },
                 {
                   "kind": "Content",
@@ -7728,8 +7585,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 13,
-                "endIndex": 14
+                "startIndex": 11,
+                "endIndex": 12
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -7759,14 +7616,14 @@
                   "parameterName": "client",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
-                    "endIndex": 9
+                    "endIndex": 8
                   }
                 },
                 {
                   "parameterName": "intervalType",
                   "parameterTypeTokenRange": {
-                    "startIndex": 10,
-                    "endIndex": 12
+                    "startIndex": 9,
+                    "endIndex": 10
                   }
                 }
               ],
@@ -7897,10 +7754,6 @@
                   "text": ", props?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -7931,7 +7784,7 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 }
               ]
@@ -7944,10 +7797,6 @@
                 {
                   "kind": "Content",
                   "text": "addProperties(newProps: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -7975,10 +7824,6 @@
                   "text": ", op?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ICombiningOp",
                   "canonicalReference": "@fluidframework/merge-tree!ICombiningOp:interface"
@@ -7986,10 +7831,6 @@
                 {
                   "kind": "Content",
                   "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -8008,8 +7849,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 14
+                "startIndex": 9,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -8018,28 +7859,28 @@
                   "parameterName": "newProps",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "collaborating",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "seq",
                   "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 },
                 {
                   "parameterName": "op",
                   "parameterTypeTokenRange": {
-                    "startIndex": 8,
-                    "endIndex": 10
+                    "startIndex": 7,
+                    "endIndex": 8
                   }
                 }
               ],
@@ -8053,10 +7894,6 @@
                 {
                   "kind": "Content",
                   "text": "addPropertySet(props: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -8079,8 +7916,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -8089,7 +7926,7 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -8103,10 +7940,6 @@
                 {
                   "kind": "Content",
                   "text": "auxProps: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -8127,7 +7960,7 @@
               "name": "auxProps",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 4
+                "endIndex": 3
               },
               "isStatic": false
             },
@@ -8336,10 +8169,6 @@
                   "text": "getAdditionalPropertySets(): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -8357,7 +8186,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 4
+                "endIndex": 3
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -8403,10 +8232,6 @@
                   "text": "getProperties(): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -8420,7 +8245,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -8559,10 +8384,6 @@
                   "text": "properties: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -8577,7 +8398,7 @@
               "name": "properties",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -8589,10 +8410,6 @@
                 {
                   "kind": "Content",
                   "text": "propertyManager: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -8609,7 +8426,7 @@
               "name": "propertyManager",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -8621,10 +8438,6 @@
                 {
                   "kind": "Content",
                   "text": "serialize(client: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -8648,8 +8461,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -8658,7 +8471,7 @@
                   "parameterName": "client",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -8954,21 +8767,13 @@
                   "text": ", intervalType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IntervalType",
-                  "canonicalReference": "@fluidframework/merge-tree!IntervalType:enum"
+                  "canonicalReference": "fluid-framework!IntervalType:enum"
                 },
                 {
                   "kind": "Content",
                   "text": ", props?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -8991,8 +8796,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 12
+                "startIndex": 9,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -9015,14 +8820,14 @@
                   "parameterName": "intervalType",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 8,
-                    "endIndex": 10
+                    "startIndex": 7,
+                    "endIndex": 8
                   }
                 }
               ],
@@ -9036,10 +8841,6 @@
                 {
                   "kind": "Content",
                   "text": "addConflictResolver(conflictResolver: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -9066,8 +8867,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 4,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -9076,7 +8877,7 @@
                   "parameterName": "conflictResolver",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 4
+                    "endIndex": 3
                   }
                 }
               ],
@@ -9242,10 +9043,6 @@
                   "text": "attachGraph(client: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "Client",
                   "canonicalReference": "@fluidframework/merge-tree!Client:class"
@@ -9274,8 +9071,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
+                "startIndex": 5,
+                "endIndex": 6
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -9284,14 +9081,14 @@
                   "parameterName": "client",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "label",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 }
               ],
@@ -9467,10 +9264,6 @@
                   "text": ", props: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -9491,8 +9284,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
+                "startIndex": 5,
+                "endIndex": 6
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -9508,7 +9301,7 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
-                    "endIndex": 5
+                    "endIndex": 4
                   }
                 }
               ],
@@ -9713,66 +9506,6 @@
                 }
               ],
               "name": "CreateForwardIteratorWithStartPosition"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "fluid-framework!IntervalCollection#delete:member(1)",
-              "docComment": "/**\n * @deprecated\n *\n * delete by start/end position is deprecated. Use removeIntervalById.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "delete(start: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", end: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "start",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "end",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                }
-              ],
-              "name": "delete"
             },
             {
               "kind": "Method",
@@ -10048,66 +9781,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!IntervalCollection#getView:member(1)",
-              "docComment": "/**\n * @deprecated\n *\n * IntervalCollectionView has been removed. Refer to IntervalCollection directly.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "getView(onDeserialize?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "DeserializeCallback",
-                  "canonicalReference": "fluid-framework!DeserializeCallback:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IntervalCollection",
-                  "canonicalReference": "fluid-framework!IntervalCollection:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<TInterval>>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "onDeserialize",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                }
-              ],
-              "name": "getView"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "fluid-framework!IntervalCollection#map:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -10296,8 +9969,13 @@
                   "text": "serializeInternal(): "
                 },
                 {
+                  "kind": "Reference",
+                  "text": "ISerializedInterval",
+                  "canonicalReference": "fluid-framework!ISerializedInterval:interface"
+                },
+                {
                   "kind": "Content",
-                  "text": "any[]"
+                  "text": "[]"
                 },
                 {
                   "kind": "Content",
@@ -10308,7 +9986,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -10468,6 +10146,105 @@
             }
           ],
           "implementsTokenRanges": []
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "fluid-framework!IntervalType:enum",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum IntervalType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "IntervalType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "fluid-framework!IntervalType.Nest:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Nest = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "1"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Nest",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "fluid-framework!IntervalType.Simple:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Simple = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "0"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Simple",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "fluid-framework!IntervalType.SlideOnRemove:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SlideOnRemove = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "2"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SlideOnRemove",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "fluid-framework!IntervalType.Transient:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Transient = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "4"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Transient",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
         },
         {
           "kind": "Interface",
@@ -10636,10 +10413,6 @@
               "text": "export interface ISerializableInterval extends "
             },
             {
-              "kind": "Content",
-              "text": "MergeTree."
-            },
-            {
               "kind": "Reference",
               "text": "IInterval",
               "canonicalReference": "@fluidframework/merge-tree!IInterval:interface"
@@ -10660,10 +10433,6 @@
                 {
                   "kind": "Content",
                   "text": "addProperties(props: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -10691,10 +10460,6 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -10710,8 +10475,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 11
+                "startIndex": 7,
+                "endIndex": 9
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -10720,21 +10485,21 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "collaborating",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "seq",
                   "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 }
               ],
@@ -10778,10 +10543,6 @@
                   "text": "properties: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -10796,7 +10557,7 @@
               "name": "properties",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               }
             },
             {
@@ -10807,10 +10568,6 @@
                 {
                   "kind": "Content",
                   "text": "propertyManager: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -10827,7 +10584,7 @@
               "name": "propertyManager",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               }
             },
             {
@@ -10840,10 +10597,6 @@
                   "text": "serialize(client: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "Client",
                   "canonicalReference": "@fluidframework/merge-tree!Client:class"
@@ -10853,8 +10606,9 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "any"
+                  "kind": "Reference",
+                  "text": "ISerializedInterval",
+                  "canonicalReference": "fluid-framework!ISerializedInterval:interface"
                 },
                 {
                   "kind": "Content",
@@ -10863,8 +10617,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -10873,7 +10627,7 @@
                   "parameterName": "client",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -10883,7 +10637,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -10936,13 +10690,9 @@
                   "text": "intervalType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IntervalType",
-                  "canonicalReference": "@fluidframework/merge-tree!IntervalType:enum"
+                  "canonicalReference": "fluid-framework!IntervalType:enum"
                 },
                 {
                   "kind": "Content",
@@ -10954,7 +10704,7 @@
               "name": "intervalType",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               }
             },
             {
@@ -10965,10 +10715,6 @@
                 {
                   "kind": "Content",
                   "text": "properties?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -10985,7 +10731,7 @@
               "name": "properties",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               }
             },
             {
@@ -11417,10 +11163,6 @@
                   "text": ", refType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ReferenceType",
                   "canonicalReference": "@fluidframework/merge-tree!ReferenceType:enum"
@@ -11428,10 +11170,6 @@
                 {
                   "kind": "Content",
                   "text": ", props?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -11443,8 +11181,9 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "any"
+                  "kind": "Reference",
+                  "text": "IMergeTreeInsertMsg",
+                  "canonicalReference": "@fluidframework/merge-tree!IMergeTreeInsertMsg:interface"
                 },
                 {
                   "kind": "Content",
@@ -11453,8 +11192,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 10
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -11470,14 +11209,14 @@
                   "parameterName": "refType",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
-                    "endIndex": 5
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 8
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 }
               ],
@@ -11486,7 +11225,7 @@
             {
               "kind": "MethodSignature",
               "canonicalReference": "fluid-framework!ISharedString#insertText:member(1)",
-              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param pos - The position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
+              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param pos - The position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of the text\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -11509,10 +11248,6 @@
                   "text": ", props?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -11523,7 +11258,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "void"
                 },
                 {
                   "kind": "Content",
@@ -11532,8 +11267,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 9
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -11556,7 +11291,7 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 }
               ],
@@ -11572,10 +11307,6 @@
                   "text": "posFromRelativePos(relativePos: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IRelativePosition",
                   "canonicalReference": "@fluidframework/merge-tree!IRelativePosition:interface"
@@ -11586,7 +11317,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "number"
                 },
                 {
                   "kind": "Content",
@@ -11595,8 +11326,8 @@
               ],
               "isOptional": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -11605,7 +11336,7 @@
                   "parameterName": "relativePos",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -13262,7 +12993,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SequenceEvent#first:member",
-              "docComment": "/**\n * The first of the modified ranges.\n */\n",
+              "docComment": "/**\n * The first of the modified ranges. Undefined if delta is empty, like in the case where a delete comes in for a previously deleted range\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13284,7 +13015,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<TOperation>>"
+                  "text": "<TOperation>> | undefined"
                 },
                 {
                   "kind": "Content",
@@ -13330,7 +13061,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SequenceEvent#last:member",
-              "docComment": "/**\n * The last of the modified ranges.\n */\n",
+              "docComment": "/**\n * The last of the modified ranges. Undefined if delta is empty, like in the case where a delete comes in for a previously deleted range\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13352,7 +13083,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<TOperation>>"
+                  "text": "<TOperation>> | undefined"
                 },
                 {
                   "kind": "Content",
@@ -13371,7 +13102,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SequenceEvent#ranges:member",
-              "docComment": "/**\n * The in-order ranges affected by this delta. These may not be continous.\n */\n",
+              "docComment": "/**\n * The in-order ranges affected by this delta. These may not be continuos.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -13448,10 +13179,6 @@
                   "text": "constructor(start: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "LocalReference",
                   "canonicalReference": "@fluidframework/merge-tree!LocalReference:class"
@@ -13459,10 +13186,6 @@
                 {
                   "kind": "Content",
                   "text": ", end: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -13474,21 +13197,13 @@
                   "text": ", intervalType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IntervalType",
-                  "canonicalReference": "@fluidframework/merge-tree!IntervalType:enum"
+                  "canonicalReference": "fluid-framework!IntervalType:enum"
                 },
                 {
                   "kind": "Content",
                   "text": ", props?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -13507,28 +13222,28 @@
                   "parameterName": "start",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "end",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 6
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "intervalType",
                   "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 9
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 10,
-                    "endIndex": 12
+                    "startIndex": 7,
+                    "endIndex": 8
                   }
                 }
               ]
@@ -13541,10 +13256,6 @@
                 {
                   "kind": "Content",
                   "text": "addProperties(newProps: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -13572,10 +13283,6 @@
                   "text": ", op?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ICombiningOp",
                   "canonicalReference": "@fluidframework/merge-tree!ICombiningOp:interface"
@@ -13583,10 +13290,6 @@
                 {
                   "kind": "Content",
                   "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -13605,8 +13308,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 14
+                "startIndex": 9,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -13615,28 +13318,28 @@
                   "parameterName": "newProps",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "collab",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "seq",
                   "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 },
                 {
                   "parameterName": "op",
                   "parameterTypeTokenRange": {
-                    "startIndex": 8,
-                    "endIndex": 10
+                    "startIndex": 7,
+                    "endIndex": 8
                   }
                 }
               ],
@@ -13820,10 +13523,6 @@
                   "text": "end: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "LocalReference",
                   "canonicalReference": "@fluidframework/merge-tree!LocalReference:class"
@@ -13838,7 +13537,7 @@
               "name": "end",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -13881,13 +13580,9 @@
                   "text": "intervalType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IntervalType",
-                  "canonicalReference": "@fluidframework/merge-tree!IntervalType:enum"
+                  "canonicalReference": "fluid-framework!IntervalType:enum"
                 },
                 {
                   "kind": "Content",
@@ -13899,7 +13594,7 @@
               "name": "intervalType",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -14095,10 +13790,6 @@
                   "text": "properties: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -14113,7 +13804,7 @@
               "name": "properties",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -14125,10 +13816,6 @@
                 {
                   "kind": "Content",
                   "text": "propertyManager: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -14145,7 +13832,7 @@
               "name": "propertyManager",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -14157,10 +13844,6 @@
                 {
                   "kind": "Content",
                   "text": "serialize(client: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -14184,8 +13867,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -14194,7 +13877,7 @@
                   "parameterName": "client",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -14208,10 +13891,6 @@
                 {
                   "kind": "Content",
                   "text": "start: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -14228,7 +13907,7 @@
               "name": "start",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
             },
@@ -14779,7 +14458,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedIntervalCollection#getIntervalCollectionPath:member(1)",
-              "docComment": "/**\n * Creates the full path of the intervalCollection label\n *\n * @param label - the incoming lable\n */\n",
+              "docComment": "/**\n * Creates the full path of the intervalCollection label\n *\n * @param label - the incoming label\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -14979,35 +14658,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedIntervalCollection#registerCore:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "protected registerCore(): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [],
-              "name": "registerCore"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "fluid-framework!SharedIntervalCollection#reSubmitCore:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -15068,17 +14718,17 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedIntervalCollection#snapshotCore:member(1)",
+              "canonicalReference": "fluid-framework!SharedIntervalCollection#summarizeCore:member(1)",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "protected snapshotCore(serializer: "
+                  "text": "protected summarizeCore(serializer: "
                 },
                 {
                   "kind": "Reference",
                   "text": "IFluidSerializer",
-                  "canonicalReference": "@fluidframework/core-interfaces!IFluidSerializer:interface"
+                  "canonicalReference": "@fluidframework/shared-object-base!IFluidSerializer:interface"
                 },
                 {
                   "kind": "Content",
@@ -15086,8 +14736,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ITree",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ITree:interface"
+                  "text": "ISummaryTreeWithStats",
+                  "canonicalReference": "@fluidframework/runtime-definitions!ISummaryTreeWithStats:interface"
                 },
                 {
                   "kind": "Content",
@@ -15111,7 +14761,7 @@
                   }
                 }
               ],
-              "name": "snapshotCore"
+              "name": "summarizeCore"
             },
             {
               "kind": "Method",
@@ -15488,7 +15138,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SharedNumberSequence:class",
-          "docComment": "/**\n * The SharedNumberSequence holds a sequence of numbers. Each number will be stored at a position within the sequence. See the {@link https://fluidframework.com/docs/data-structures/sequences/ | sequence documentation} for details on working with sequences.\n */\n",
+          "docComment": "/**\n * The SharedNumberSequence holds a sequence of numbers. Each number will be stored at a position within the sequence. See the {@link https://fluidframework.com/docs/data-structures/sequences/ | sequence documentation} for details on working with sequences.\n *\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -15510,7 +15160,7 @@
             {
               "kind": "Constructor",
               "canonicalReference": "fluid-framework!SharedNumberSequence:constructor(1)",
-              "docComment": "/**\n * Constructs a new instance of the `SharedNumberSequence` class\n */\n",
+              "docComment": "/**\n * Constructs a new instance of the `SharedNumberSequence` class\n *\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15572,7 +15222,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedNumberSequence.create:member(1)",
-              "docComment": "/**\n * Create a new shared number sequence\n *\n * @param runtime - data store runtime the new shared number sequence belongs to\n *\n * @param id - optional name of the shared number sequence\n *\n * @returns newly create shared number sequence (but not attached yet)\n */\n",
+              "docComment": "/**\n * Create a new shared number sequence\n *\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n *\n * @param runtime - data store runtime the new shared number sequence belongs to\n *\n * @param id - optional name of the shared number sequence\n *\n * @returns newly create shared number sequence (but not attached yet)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15634,7 +15284,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedNumberSequence.getFactory:member(1)",
-              "docComment": "/**\n * Get a factory for SharedNumberSequence to register with the data store.\n *\n * @returns a factory that creates and load SharedNumberSequence\n */\n",
+              "docComment": "/**\n * Get a factory for SharedNumberSequence to register with the data store.\n *\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n *\n * @returns a factory that creates and load SharedNumberSequence\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15664,7 +15314,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedNumberSequence#getRange:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15758,7 +15408,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SharedNumberSequenceFactory:class",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -15780,7 +15430,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory#attributes:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15808,7 +15458,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory.Attributes:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15836,7 +15486,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory#create:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15898,7 +15548,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory#load:member(1)",
-              "docComment": "/**\n * {@inheritDoc @fluidframework/datastore-definitions#IChannelFactory.load}\n */\n",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n * {@inheritDoc @fluidframework/datastore-definitions#IChannelFactory.load}\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16005,15 +15655,11 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory.segmentFromSpec:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
                   "text": "static segmentFromSpec(segSpec: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -16041,8 +15687,8 @@
               "isOptional": false,
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 6
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -16051,7 +15697,7 @@
                   "parameterName": "segSpec",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -16060,7 +15706,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory#type:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16087,7 +15733,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedNumberSequenceFactory.Type:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedNumberSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16122,7 +15768,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SharedObjectSequence:class",
-          "docComment": "/**\n * The SharedObjectSequence holds a sequence of serializable objects. Each object will be stored at a position within the sequence. See the {@link https://fluidframework.com/docs/data-structures/sequences/ | sequence documentation} for details on working with sequences.\n */\n",
+          "docComment": "/**\n * The SharedObjectSequence holds a sequence of serializable objects. Each object will be stored at a position within the sequence. See the {@link https://fluidframework.com/docs/data-structures/sequences/ | sequence documentation} for details on working with sequences.\n *\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -16157,7 +15803,7 @@
             {
               "kind": "Constructor",
               "canonicalReference": "fluid-framework!SharedObjectSequence:constructor(1)",
-              "docComment": "/**\n * Constructs a new instance of the `SharedObjectSequence` class\n */\n",
+              "docComment": "/**\n * Constructs a new instance of the `SharedObjectSequence` class\n *\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16219,7 +15865,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedObjectSequence.create:member(1)",
-              "docComment": "/**\n * Create a new shared object sequence\n *\n * @param runtime - data store runtime the new shared object sequence belongs to\n *\n * @param id - optional name of the shared object sequence\n *\n * @returns newly create shared object sequence (but not attached yet)\n */\n",
+              "docComment": "/**\n * Create a new shared object sequence\n *\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n *\n * @param runtime - data store runtime the new shared object sequence belongs to\n *\n * @param id - optional name of the shared object sequence\n *\n * @returns newly create shared object sequence (but not attached yet)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16298,7 +15944,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedObjectSequence.getFactory:member(1)",
-              "docComment": "/**\n * Get a factory for SharedObjectSequence to register with the data store.\n *\n * @returns a factory that creates and load SharedObjectSequence\n */\n",
+              "docComment": "/**\n * Get a factory for SharedObjectSequence to register with the data store.\n *\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n *\n * @returns a factory that creates and load SharedObjectSequence\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16328,7 +15974,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedObjectSequence#getRange:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16427,7 +16073,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fluid-framework!SharedObjectSequenceFactory:class",
-          "docComment": "",
+          "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -16449,7 +16095,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory#attributes:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16477,7 +16123,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory.Attributes:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16505,7 +16151,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory#create:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16567,7 +16213,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory#load:member(1)",
-              "docComment": "/**\n * {@inheritDoc @fluidframework/datastore-definitions#IChannelFactory.load}\n */\n",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n * {@inheritDoc @fluidframework/datastore-definitions#IChannelFactory.load}\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16674,15 +16320,11 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory.segmentFromSpec:member(1)",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
                   "text": "static segmentFromSpec(segSpec: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -16710,8 +16352,8 @@
               "isOptional": false,
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 6
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -16720,7 +16362,7 @@
                   "parameterName": "segSpec",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -16729,7 +16371,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory#type:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16756,7 +16398,7 @@
             {
               "kind": "Property",
               "canonicalReference": "fluid-framework!SharedObjectSequenceFactory.Type:member",
-              "docComment": "",
+              "docComment": "/**\n * @deprecated\n *\n * SharedObjectSequence is not recommended for use and will be removed in an upcoming release. For more info, please see [Github issue 8526](https://github.com/microsoft/FluidFramework/issues/8526)\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16796,10 +16438,6 @@
             {
               "kind": "Content",
               "text": "export declare abstract class SharedSegmentSequence<T extends "
-            },
-            {
-              "kind": "Content",
-              "text": "MergeTree."
             },
             {
               "kind": "Reference",
@@ -16857,7 +16495,7 @@
               "typeParameterName": "T",
               "constraintTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "defaultTypeTokenRange": {
                 "startIndex": 0,
@@ -16904,7 +16542,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "(spec: MergeTree."
+                  "text": "(spec: "
                 },
                 {
                   "kind": "Reference",
@@ -16913,7 +16551,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => MergeTree."
+                  "text": ") => "
                 },
                 {
                   "kind": "Reference",
@@ -16968,8 +16606,9 @@
                   "text": "addLocalReference(lref: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "any"
+                  "kind": "Reference",
+                  "text": "LocalReference",
+                  "canonicalReference": "@fluidframework/merge-tree!LocalReference:class"
                 },
                 {
                   "kind": "Content",
@@ -17029,10 +16668,6 @@
                   "text": ", props: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -17040,10 +16675,6 @@
                 {
                   "kind": "Content",
                   "text": ", combiningOp?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -17066,8 +16697,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 12
+                "startIndex": 9,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17090,14 +16721,14 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 },
                 {
                   "parameterName": "combiningOp",
                   "parameterTypeTokenRange": {
-                    "startIndex": 8,
-                    "endIndex": 10
+                    "startIndex": 7,
+                    "endIndex": 8
                   }
                 }
               ],
@@ -17142,10 +16773,6 @@
                   "text": "protected client: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "Client",
                   "canonicalReference": "@fluidframework/merge-tree!Client:class"
@@ -17160,84 +16787,9 @@
               "name": "client",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 3
+                "endIndex": 2
               },
               "isStatic": false
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#copy:member(1)",
-              "docComment": "/**\n * Puts the content of the range in a register\n *\n * @param start - The inclusive start of the range\n *\n * @param end - The exclusive end of the range\n *\n * @param register - The name of the register to store the range in\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "copy(start: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", end: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", register: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "start",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "end",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                },
-                {
-                  "parameterName": "register",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
-                  }
-                }
-              ],
-              "name": "copy"
             },
             {
               "kind": "Method",
@@ -17265,10 +16817,6 @@
                   "text": ", refType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ReferenceType",
                   "canonicalReference": "@fluidframework/merge-tree!ReferenceType:enum"
@@ -17276,10 +16824,6 @@
                 {
                   "kind": "Content",
                   "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -17294,8 +16838,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 10
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17318,86 +16862,11 @@
                   "parameterName": "refType",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
-                  }
-                }
-              ],
-              "name": "createPositionReference"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#cut:member(1)",
-              "docComment": "/**\n * Removes the range and puts the content of the removed range in a register\n *\n * @param start - The inclusive start of the range to remove\n *\n * @param end - The exclusive end of the range to remove\n *\n * @param register - The name of the register to store the removed range in\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "cut(start: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", end: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", register: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "start",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "end",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                },
-                {
-                  "parameterName": "register",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 5,
                     "endIndex": 6
                   }
                 }
               ],
-              "name": "cut"
+              "name": "createPositionReference"
             },
             {
               "kind": "Method",
@@ -17504,36 +16973,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#getGCDataCore:member(1)",
-              "docComment": "/**\n * Returns the GC data for this SharedMatrix. All the IFluidHandle's represent routes to other objects.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "protected getGCDataCore(): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IGarbageCollectionData",
-                  "canonicalReference": "@fluidframework/runtime-definitions!IGarbageCollectionData:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [],
-              "name": "getGCDataCore"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "fluid-framework!SharedSegmentSequence#getIntervalCollection:member(1)",
               "docComment": "",
               "excerptTokens": [
@@ -17630,10 +17069,6 @@
                   "text": "getPosition(segment: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ISegment",
                   "canonicalReference": "@fluidframework/merge-tree!ISegment:interface"
@@ -17654,8 +17089,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17664,7 +17099,7 @@
                   "parameterName": "segment",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -17688,10 +17123,6 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -17705,7 +17136,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 3,
-                "endIndex": 5
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17791,10 +17222,6 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "RangeStackMap",
                   "canonicalReference": "@fluidframework/merge-tree!RangeStackMap:type"
@@ -17808,7 +17235,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 5,
-                "endIndex": 7
+                "endIndex": 6
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17840,10 +17267,6 @@
                   "text": "groupOperation(groupOp: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IMergeTreeGroupMsg",
                   "canonicalReference": "@fluidframework/merge-tree!IMergeTreeGroupMsg:interface"
@@ -17864,8 +17287,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17874,7 +17297,7 @@
                   "parameterName": "groupOp",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -17946,10 +17369,6 @@
                   "text": "insertAtReferencePosition(pos: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ReferencePosition",
                   "canonicalReference": "@fluidframework/merge-tree!ReferencePosition:interface"
@@ -17978,8 +17397,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 6,
-                "endIndex": 7
+                "startIndex": 5,
+                "endIndex": 6
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -17988,14 +17407,14 @@
                   "parameterName": "pos",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "segment",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 }
               ],
@@ -18126,10 +17545,6 @@
                   "text": "localRefToPos(localRef: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "LocalReference",
                   "canonicalReference": "@fluidframework/merge-tree!LocalReference:class"
@@ -18150,8 +17565,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -18160,7 +17575,7 @@
                   "parameterName": "localRef",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 }
               ],
@@ -18226,66 +17641,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#paste:member(1)",
-              "docComment": "/**\n * Inserts the content of the register.\n *\n * @param pos - The position to insert the content at.\n *\n * @param register - The name of the register to get the content from\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "paste(pos: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", register: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "pos",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  }
-                },
-                {
-                  "parameterName": "register",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  }
-                }
-              ],
-              "name": "paste"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "fluid-framework!SharedSegmentSequence#posFromRelativePos:member(1)",
               "docComment": "/**\n * Given a position specified relative to a marker id, lookup the marker and convert the position to a character position.\n *\n * @param relativePos - Id of marker (may be indirect) and whether position is before or after marker.\n */\n",
               "excerptTokens": [
@@ -18294,8 +17649,9 @@
                   "text": "posFromRelativePos(relativePos: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "any"
+                  "kind": "Reference",
+                  "text": "IRelativePosition",
+                  "canonicalReference": "@fluidframework/merge-tree!IRelativePosition:interface"
                 },
                 {
                   "kind": "Content",
@@ -18407,12 +17763,21 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#registerCore:member(1)",
-              "docComment": "",
+              "canonicalReference": "fluid-framework!SharedSegmentSequence#processGCDataCore:member(1)",
+              "docComment": "/**\n * Runs serializer over the GC data for this SharedMatrix. All the IFluidHandle's represent routes to other objects.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "protected registerCore(): "
+                  "text": "protected processGCDataCore(serializer: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "SummarySerializer",
+                  "canonicalReference": "@fluidframework/shared-object-base!SummarySerializer:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
                 },
                 {
                   "kind": "Content",
@@ -18426,13 +17791,21 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
+                "startIndex": 3,
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
-              "parameters": [],
-              "name": "registerCore"
+              "parameters": [
+                {
+                  "parameterName": "serializer",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                }
+              ],
+              "name": "processGCDataCore"
             },
             {
               "kind": "Method",
@@ -18444,8 +17817,9 @@
                   "text": "removeLocalReference(lref: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "any"
+                  "kind": "Reference",
+                  "text": "LocalReference",
+                  "canonicalReference": "@fluidframework/merge-tree!LocalReference:class"
                 },
                 {
                   "kind": "Content",
@@ -18505,10 +17879,6 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IMergeTreeRemoveMsg",
                   "canonicalReference": "@fluidframework/merge-tree!IMergeTreeRemoveMsg:interface"
@@ -18522,7 +17892,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 5,
-                "endIndex": 7
+                "endIndex": 6
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -18570,10 +17940,6 @@
                   "text": ", segment: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ISegment",
                   "canonicalReference": "@fluidframework/merge-tree!ISegment:interface"
@@ -18594,8 +17960,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 9
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -18618,7 +17984,7 @@
                   "parameterName": "segment",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 }
               ],
@@ -18627,7 +17993,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedSegmentSequence#resolveRemoteClientPosition:member(1)",
-              "docComment": "/**\n * Resolves a remote client's position against the local sequence and returns the remote client's position relative to the local sequence\n *\n * @param remoteClientPosition - The remote client's position to resolve\n *\n * @param remoteClientRefSeq - The reference sequence number of the remote client\n *\n * @param remoteClientId - The client id of the remote client\n */\n",
+              "docComment": "/**\n * Resolves a remote client's position against the local sequence and returns the remote client's position relative to the local sequence. The client ref seq must be above the minimum sequence number or the return value will be undefined. Generally this method is used in conjunction with signals which provide point in time values for the below parameters, and is useful for things like displaying user position. It should not be used with persisted values as persisted values will quickly become invalid as the remoteClientRefSeq moves below the minimum sequence number\n *\n * @param remoteClientPosition - The remote client's position to resolve\n *\n * @param remoteClientRefSeq - The reference sequence number of the remote client\n *\n * @param remoteClientId - The client id of the remote client\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -18770,7 +18136,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "(spec: MergeTree."
+                  "text": "(spec: "
                 },
                 {
                   "kind": "Reference",
@@ -18779,7 +18145,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => MergeTree."
+                  "text": ") => "
                 },
                 {
                   "kind": "Reference",
@@ -18802,17 +18168,63 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#snapshotCore:member(1)",
+              "canonicalReference": "fluid-framework!SharedSegmentSequence#submitSequenceMessage:member(1)",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "protected snapshotCore(serializer: "
+                  "text": "submitSequenceMessage(message: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IMergeTreeOp",
+                  "canonicalReference": "@fluidframework/merge-tree!IMergeTreeOp:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "message",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                }
+              ],
+              "name": "submitSequenceMessage"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fluid-framework!SharedSegmentSequence#summarizeCore:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "protected summarizeCore(serializer: "
                 },
                 {
                   "kind": "Reference",
                   "text": "IFluidSerializer",
-                  "canonicalReference": "@fluidframework/core-interfaces!IFluidSerializer:interface"
+                  "canonicalReference": "@fluidframework/shared-object-base!IFluidSerializer:interface"
                 },
                 {
                   "kind": "Content",
@@ -18820,8 +18232,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ITree",
-                  "canonicalReference": "@fluidframework/protocol-definitions!ITree:interface"
+                  "text": "ISummaryTreeWithStats",
+                  "canonicalReference": "@fluidframework/runtime-definitions!ISummaryTreeWithStats:interface"
                 },
                 {
                   "kind": "Content",
@@ -18845,57 +18257,7 @@
                   }
                 }
               ],
-              "name": "snapshotCore"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "fluid-framework!SharedSegmentSequence#submitSequenceMessage:member(1)",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "submitSequenceMessage(message: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IMergeTreeOp",
-                  "canonicalReference": "@fluidframework/merge-tree!IMergeTreeOp:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "message",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  }
-                }
-              ],
-              "name": "submitSequenceMessage"
+              "name": "summarizeCore"
             },
             {
               "kind": "Method",
@@ -18975,10 +18337,6 @@
                   "text": "walkSegments<TClientData>(handler: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ISegmentAction",
                   "canonicalReference": "@fluidframework/merge-tree!ISegmentAction:interface"
@@ -19035,8 +18393,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 13,
-                "endIndex": 14
+                "startIndex": 12,
+                "endIndex": 13
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -19045,35 +18403,35 @@
                   "parameterName": "handler",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 4
+                    "endIndex": 3
                   }
                 },
                 {
                   "parameterName": "start",
                   "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
+                    "startIndex": 4,
+                    "endIndex": 5
                   }
                 },
                 {
                   "parameterName": "end",
                   "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
+                    "startIndex": 6,
+                    "endIndex": 7
                   }
                 },
                 {
                   "parameterName": "accum",
                   "parameterTypeTokenRange": {
-                    "startIndex": 9,
-                    "endIndex": 10
+                    "startIndex": 8,
+                    "endIndex": 9
                   }
                 },
                 {
                   "parameterName": "splitRange",
                   "parameterTypeTokenRange": {
-                    "startIndex": 11,
-                    "endIndex": 12
+                    "startIndex": 10,
+                    "endIndex": 11
                   }
                 }
               ],
@@ -19094,13 +18452,13 @@
             }
           ],
           "extendsTokenRange": {
-            "startIndex": 4,
-            "endIndex": 8
+            "startIndex": 3,
+            "endIndex": 7
           },
           "implementsTokenRanges": [
             {
-              "startIndex": 9,
-              "endIndex": 13
+              "startIndex": 8,
+              "endIndex": 12
             }
           ]
         },
@@ -19624,10 +18982,6 @@
                   "text": "annotateMarker(marker: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "Marker",
                   "canonicalReference": "@fluidframework/merge-tree!Marker:class"
@@ -19637,10 +18991,6 @@
                   "text": ", props: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -19648,10 +18998,6 @@
                 {
                   "kind": "Content",
                   "text": ", combiningOp?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -19674,8 +19020,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 10,
-                "endIndex": 11
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -19684,21 +19030,21 @@
                   "parameterName": "marker",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 6
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "combiningOp",
                   "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 9
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 }
               ],
@@ -19714,10 +19060,6 @@
                   "text": "annotateMarkerNotifyConsensus(marker: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "Marker",
                   "canonicalReference": "@fluidframework/merge-tree!Marker:class"
@@ -19725,10 +19067,6 @@
                 {
                   "kind": "Content",
                   "text": ", props: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -19741,7 +19079,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "(m: MergeTree."
+                  "text": "(m: "
                 },
                 {
                   "kind": "Reference",
@@ -19768,8 +19106,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 11,
-                "endIndex": 12
+                "startIndex": 9,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -19778,21 +19116,21 @@
                   "parameterName": "marker",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 6
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "callback",
                   "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 10
+                    "startIndex": 5,
+                    "endIndex": 8
                   }
                 }
               ],
@@ -19895,7 +19233,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "{\n        tile: MergeTree."
+                  "text": "{\n        tile: "
                 },
                 {
                   "kind": "Reference",
@@ -19992,10 +19330,6 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ISegment",
                   "canonicalReference": "@fluidframework/merge-tree!ISegment:interface"
@@ -20009,7 +19343,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 3,
-                "endIndex": 5
+                "endIndex": 4
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20103,7 +19437,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "{\n        parallelText: string[];\n        parallelMarkers: MergeTree."
+                  "text": "{\n        parallelText: string[];\n        parallelMarkers: "
                 },
                 {
                   "kind": "Reference",
@@ -20332,10 +19666,6 @@
                   "text": ", refType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ReferenceType",
                   "canonicalReference": "@fluidframework/merge-tree!ReferenceType:enum"
@@ -20345,10 +19675,6 @@
                   "text": ", props?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -20356,10 +19682,6 @@
                 {
                   "kind": "Content",
                   "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -20374,8 +19696,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 11
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20391,14 +19713,14 @@
                   "parameterName": "refType",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
-                    "endIndex": 5
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 8
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 }
               ],
@@ -20414,10 +19736,6 @@
                   "text": "insertMarkerRelative(relativePos1: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IRelativePosition",
                   "canonicalReference": "@fluidframework/merge-tree!IRelativePosition:interface"
@@ -20427,10 +19745,6 @@
                   "text": ", refType: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "ReferenceType",
                   "canonicalReference": "@fluidframework/merge-tree!ReferenceType:enum"
@@ -20438,10 +19752,6 @@
                 {
                   "kind": "Content",
                   "text": ", props?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -20464,8 +19774,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 10,
-                "endIndex": 11
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20474,21 +19784,21 @@
                   "parameterName": "relativePos1",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "refType",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 6
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 9
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 }
               ],
@@ -20497,7 +19807,7 @@
             {
               "kind": "Method",
               "canonicalReference": "fluid-framework!SharedString#insertText:member(1)",
-              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param pos - The position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of text\n */\n",
+              "docComment": "/**\n * Inserts the text at the position.\n *\n * @param pos - The position to insert the text at\n *\n * @param text - The text to insert\n *\n * @param props - The properties of the text\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -20520,10 +19830,6 @@
                   "text": ", props?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -20544,8 +19850,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 9
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20568,7 +19874,7 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 }
               ],
@@ -20582,10 +19888,6 @@
                 {
                   "kind": "Content",
                   "text": "insertTextRelative(relativePos1: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -20603,10 +19905,6 @@
                 {
                   "kind": "Content",
                   "text": ", props?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "MergeTree."
                 },
                 {
                   "kind": "Reference",
@@ -20629,8 +19927,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 10
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20639,21 +19937,21 @@
                   "parameterName": "relativePos1",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   }
                 },
                 {
                   "parameterName": "text",
                   "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
+                    "startIndex": 3,
+                    "endIndex": 4
                   }
                 },
                 {
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 8
+                    "startIndex": 5,
+                    "endIndex": 6
                   }
                 }
               ],
@@ -20713,10 +20011,6 @@
                   "text": "): "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "IMergeTreeRemoveMsg",
                   "canonicalReference": "@fluidframework/merge-tree!IMergeTreeRemoveMsg:interface"
@@ -20730,7 +20024,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 5,
-                "endIndex": 7
+                "endIndex": 6
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20786,10 +20080,6 @@
                   "text": ", props?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "MergeTree."
-                },
-                {
                   "kind": "Reference",
                   "text": "PropertySet",
                   "canonicalReference": "@fluidframework/merge-tree!PropertySet:type"
@@ -20810,8 +20100,8 @@
               "isOptional": false,
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 10,
-                "endIndex": 11
+                "startIndex": 9,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -20841,7 +20131,7 @@
                   "parameterName": "props",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
-                    "endIndex": 9
+                    "endIndex": 8
                   }
                 }
               ],
@@ -21224,17 +20514,13 @@
               "text": "export declare type SharedStringSegment = "
             },
             {
-              "kind": "Content",
-              "text": "MergeTree."
-            },
-            {
               "kind": "Reference",
               "text": "TextSegment",
               "canonicalReference": "@fluidframework/merge-tree!TextSegment:class"
             },
             {
               "kind": "Content",
-              "text": " | MergeTree."
+              "text": " | "
             },
             {
               "kind": "Reference",
@@ -21250,7 +20536,7 @@
           "name": "SharedStringSegment",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 5
+            "endIndex": 4
           }
         },
         {
@@ -21555,25 +20841,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IFluidObject",
-                  "canonicalReference": "@fluidframework/core-interfaces!IFluidObject:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "IFluidLoadable",
-                  "canonicalReference": "@fluidframework/core-interfaces!IFluidLoadable:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">>"
+                  "text": ">"
                 },
                 {
                   "kind": "Content",
@@ -21584,7 +20852,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 5,
-                "endIndex": 13
+                "endIndex": 9
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -22717,7 +21985,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "any"
+                  "text": "boolean"
                 },
                 {
                   "kind": "Content",
